@@ -28,7 +28,7 @@ def load_image(name, colorkey=None):
             
     return image
 
-class 
+#class 
 
     
 def main():# code stolen from pyong
