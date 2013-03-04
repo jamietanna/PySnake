@@ -1,0 +1,9 @@
+- collide with walls, randomly appear?
+- scoring over time
+    - speed multiplies score increases
+- speed increases over time
+- food as extra score
+- bombs/walls as bad
+    - food not eaten in time, becomes bomb
+    - bombs explode?
+    
