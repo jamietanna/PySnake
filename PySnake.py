@@ -3,51 +3,87 @@
 # Move a worm across the screen. Beware of borders and self!
 
 import pygame
+import random
 
 class Worm:
     """ A worm. """
 
-    def __init__(self, surface, x, y, length):
+    def __init__(self, surface):
         self.surface = surface
-        self.x = x
-        self.y = y
-        self.length = length
-        self.dir_x = 0
-        self.dir_y = -1
-        self.body = []
+        self.x = surface.get_width() / 2
+        self.y = surface.get_height() / 2
+        self.len = 50
+        self.vx = 0
+        self.vy = -1
+        self.body_list=[[self.x, self.y +i] for i in range (self.len)]
         self.crashed = False
+        self.colour = 255, 255, 255
+        self.speed = 1
+
+    def eat(self):
+        self.len +=50
+        self.speed += 1
 
     def key_event(self, event):
         """ Handle key events that affect the worm. """
         if event.key == pygame.K_UP:
-            self.dir_x = 0
-            self.dir_y = -1
+            if self.vy == 1: return
+            self.vx = 0
+            self.vy = -1
         elif event.key == pygame.K_DOWN:
-            self.dir_x = 0
-            self.dir_y = 1
+            if self.vy == -1: return
+            self.vx = 0
+            self.vy = 1
         elif event.key == pygame.K_LEFT:
-            self.dir_x = -1
-            self.dir_y = 0
+            if self.vx == 1: return
+            self.vx = -1
+            self.vy = 0
         elif event.key == pygame.K_RIGHT:
-            self.dir_x = 1
-            self.dir_y = 0
+            if self.vx == -1: return
+            self.vx = 1
+            self.vy = 0
 
     def move(self):
         """ Move the worm. """
-        self.x += self.dir_x
-        self.y += self.dir_y
-
-        if (self.x, self.y) in self.body:
+        self.x += self.vx * self.speed
+        self.y += self.vy * self.speed
+        
+        if [self.x,self.y] in self.body_list:
             self.crashed = True
-
-        self.body.insert(0, (self.x, self.y))
-
-        if len(self.body) > self.length:
-            self.body.pop()
+            
+            
+        self.body_list.insert(0, [self.x, self.y])
+        
+        if len(self.body_list) > self.len:
+            self.body_list.pop()
         
     def draw(self):
-        for x, y in self.body:
-            self.surface.set_at((x, y), (255, 255, 255))
+        for i in self.body_list:
+            pygame.draw.circle(self.surface,self.colour, (i[0],i[1]), 2)
+
+class Food:
+    def __init__(self, surface):
+        self.surface = surface
+        self.x = random.randint(0, (surface.get_width() - 10))
+        self.y = random.randint(0, (surface.get_height() - 10))
+        self.color = 255, 255, 255
+
+    def draw(self):
+        pygame.draw.rect(self.surface, self.color, (self.x, self.y, 10, 10), 0)
+
+    def erase(self):
+        pygame.draw.rect(self.surface, (0, 0, 0), (self.x, self.y, 10, 10), 0)
+
+    def check(self, x, y):
+        if x < self.x or x > self.x + 10:
+            return False
+        elif y < self.y or y > self.y + 10:
+            return False
+        else:
+            return True
+
+
+
 
 # Dimensions.
 width = 640 
@@ -55,25 +91,36 @@ height = 400
 
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
-running = True
+
 
 # Our worm.
-w = Worm(screen, width/2, height/2, 200)
+worm = Worm(screen)
+food = Food(screen)
+running = True
 
 while running:
     screen.fill((0, 0, 0))
-    w.move()
-    w.draw()
+    worm.move()
+    worm.draw()
+    food.draw()
 
-    if w.crashed or w.x <= 0 or w.x >= width-1 or w.y <= 0 or w.y >= height-1:
+    if worm.crashed:
+        running = False
+    elif worm.x <= 0 or worm.x >= width-1:
+        running = False
+    elif worm.y <= 0 or worm.y >= height-1:
         print "Crash!"
         running = False
+    elif food.check(worm.x,worm.y):
+        worm.eat()
+        food.erase()
+        food = Food(screen)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            w.key_event(event)
+            worm.key_event(event)
 
     pygame.display.flip()
-    clock.tick(240)
+    clock.tick(120)
