@@ -33,7 +33,7 @@ SCREEN_HEIGHT = 400
 
 BALL_SIZE = 10
 NUMBER_OF_BALLS = 2
-MY_BALLS = []
+active_balls = []
 BALL_COUNT = 0 
 
 ################################################ 
@@ -184,9 +184,9 @@ for n in range(NUMBER_OF_BALLS):
     x = random.randint(BALL_SIZE, SCREEN_WIDTH)
     y = random.randint(BALL_SIZE, SCREEN_HEIGHT)
     ball = Ball((x, y), BALL_SIZE)
-    ball.speed = 1
+    ball.speed = 1 #### TODO: change for difficulty ?
     ball.angle = random.uniform(0, math.pi*2)
-    MY_BALLS.append(ball)
+    active_balls.append(ball)
 
 # initialise our screen, clock
 
@@ -215,7 +215,7 @@ while running:
     snake.move()
     snake.draw()
     food.draw()
-    for ball in MY_BALLS:
+    for ball in active_balls:
         ball.move()
         ball.bounce()
         ball.display()
@@ -245,14 +245,14 @@ while running:
             ball = Ball((x, y), BALL_SIZE)
             ball.speed = 1
             ball.angle = random.uniform(0, math.pi*2)
-            MY_BALLS.append(ball)
+            active_balls.append(ball)
             BALL_COUNT = 0
     elif food.expire():
 	# if we've run out of time to collect the food, then respawn it
 	food = Food(screen)
 
     # only if head collides with ball,tail is OK
-    for ball in MY_BALLS:
+    for ball in active_balls:
         if ball.collide(snake.x,snake.y):
             running = False
 
@@ -287,7 +287,6 @@ if running == False:
     screen.blit(anyKey, (SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
     
     pygame.display.flip()
-    
     
     # Not a nice hack - keep going until we hit a KEYDOWN
     while True:
