@@ -1,9 +1,46 @@
-- collide with walls, randomly appear?
-- scoring over time
-    - speed multiplies score increases
-- speed increases over time
-- food as extra score
-- bombs/walls as bad
-    - food not eaten in time, becomes bomb
-    - bombs explode?
+__Difficulty system__
+
+Depending on which mode is set as argv[1], the system will change to either make it easier, or harder for the player.
+
+The major settings are as follows: 
+- How many pieces of food it takes to increase speed, and when hit, how much speed is increased
+- How much extra length we get when we eat some food
+- How long the food takes to expire, after which it will randomly reappear
+- How long the snake originally is
+- How fast the snake originally starts at
+- How many balls start on the screen
+- How fast the balls start at
+- The size of the balls
+- The score multiplier
+- How often special food appears
+- Probability of special food types
+- How long it takes for hunger to affect the player
+
+
+The three modes are as follows: 
+- Easy
+    The snake begins at a length of 50, and grows at a rate of 20 lengths per food eaten. Food expires after 10 'seconds', and after 10 pieces of food, speed increases by 1. There is initially 1 ball on screen, with speed 1, and size 10. After each piece of food is eaten, one more ball is spawned. 
     
+    The chance of special food appearing is 30% of the time. Of this special food, 70% will have positive effects. Hunger will not affect the player in easy mode. 
+    
+    
+    The score multiplier has a value of 0.5.
+- Medium
+    The snake begins at a length of 60, and grows at a rate of 30 lengths per food eaten. Food expires after 7 'seconds', and after 10 pieces of food, speed increases by 1. There are initially 2 balls on screen, with speed 2, and size 15. After each piece of food is eaten, one more ball is spawned. 
+    
+    The chance of special food appearing is 30% of the time. Of this special food, 50% will have positive effects. Hunger will affect the player after 20 seconds without any food. Hunger will take 20 seconds to kill the player. 
+    
+    The score multiplier has a value of 1.
+- Hard
+    The snake begins at a length of 70, and grows at a rate of 40 lengths per food eaten. Food expires after 5 'seconds', and after 10 pieces of food, speed increases by 1. There are initially 3 balls on screen, with speed 3, and size 20. After each piece of food is eaten, one more ball is spawned. 
+    
+    The chance of special food appearing is 30% of the time. Of this special food, 30% will have positive effects. Hunger will affect the player after 15 seconds without any food. Hunger will take 10 seconds to kill the player. 
+    
+    The score multiplier has a value of 1.5.
+
+__Scoring system__
+
+The scoring system is very simple, and is based on the food object's expiry time. The quicker the player eats a piece of food, the more points they will get. In order to ensure that we only get factors of 10, we perform the function ****!!! math.floor(timeLeftForFood / 10) * 10 !!!****. This removes any units, and leaves us just with the tens. We then multiply this with the score multiplier to adjust the score for different difficulties. 
+
+
+
