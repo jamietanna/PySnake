@@ -13,14 +13,19 @@ import string
 #### Globals
 ################################################
 
-#### TODO: How to specify mode
 #### TODO: Pause?
 #### TODO: Rules?
+#### TODO: Nightmare mode - have to press E before eating, otherwise blows up & kills
+#### TODO: Twitter Bot
+#### TODO: Speed multiplier for different screen sizes
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 400
 
-FPS = 120
+FPS = 100
+
+# SPECIAL_FOOD_CHANCE = 0.3
+    
 
 POSSIBLE_MODES = ['EASY', 'MEDIUM', 'HARD']
 
@@ -36,11 +41,14 @@ if len(sys.argv) > 1:
     if len(sys.argv) == 4:
 	SCREEN_WIDTH = int(sys.argv[2])
 	SCREEN_HEIGHT = int(sys.argv[3])
-
+else:
+    # catch default
+    MODE = 'MEDIUM'
+    
+    
 if MODE == 'EASY':
 
-    FOOD_SPEED_INCREASE_STEP = 10
-    FOOD_SPEED_INCREASE_AMT = 1
+    
     FOOD_LENGTH_INCREASE = 20
     FOOD_EXPIRE_TIME = 10  # seconds
 
@@ -53,14 +61,17 @@ if MODE == 'EASY':
 
     NUMBER_OF_BALLS = 1
     BALL_SPEED = 1
+    BALL_SIZE = 10
+    
+    # SPECIAL_FOOD_GOOD = 0.7
+    
+    # HUNGER_TIME_TO_HIT = -1 
+    # HUNGER_TIME_TO_KILL = -1
+    
 elif MODE == 'MEDIUM':
 
-    FOOD_SPEED_INCREASE_STEP = 10
-    FOOD_SPEED_INCREASE_AMT = 1
     FOOD_LENGTH_INCREASE = 30
     FOOD_EXPIRE_TIME = 7  # seconds
-
-  # ### TODO: allow floating point speed :. can increment a lot easier
 
     INITIAL_LENGTH = 60
     INITIAL_SPEED = 1
@@ -69,14 +80,17 @@ elif MODE == 'MEDIUM':
 
     NUMBER_OF_BALLS = 2
     BALL_SPEED = 2
+    BALL_SIZE = 15
+    
+    # SPECIAL_FOOD_GOOD = 0.7
+    
+    # HUNGER_TIME_TO_HIT = 20
+    # HUNGER_TIME_TO_KILL = 20
+    
 elif MODE == 'HARD':
 
-    FOOD_SPEED_INCREASE_STEP = 10
-    FOOD_SPEED_INCREASE_AMT = 1
     FOOD_LENGTH_INCREASE = 40
     FOOD_EXPIRE_TIME = 5  # seconds
-
-  # ### TODO: allow floating point speed :. can increment a lot easier
 
     INITIAL_LENGTH = 70
     INITIAL_SPEED = 2
@@ -85,10 +99,19 @@ elif MODE == 'HARD':
 
     NUMBER_OF_BALLS = 5
     BALL_SPEED = 3
+    BALL_SIZE = 20
+    
+    # SPECIAL_FOOD_GOOD = 0.7
+    
+    # HUNGER_TIME_TO_HIT = 15
+    # HUNGER_TIME_TO_KILL = 10
+    
 
 #### TODO; use argv to allow user to specify different resolution
 
-
+FOOD_SPEED_INCREASE_STEP = 10
+FOOD_SPEED_INCREASE_AMT = 1
+    
 
 
 ###
@@ -102,9 +125,8 @@ def calculateScore(timeLeftForFood):
 total_score = 0
 
 ## ballS
-#### TODO: Initial num balls determined by the level of difficulty
 
-BALL_SIZE = 10
+
 active_balls = []
 BALL_COUNT = 0
 
@@ -395,22 +417,25 @@ if running == False:
 
     # here we have finished, therefore show scores etc (in the console)
     # however, this is going to be quite useless now we're showing it on screen
-    # ### TODO: Scoring system based on difficulty
     # ### TODO: Top scores
     # ### TODO: inside the blit() ???
     # ### TODO: You survived for ___ seconds?
     # ### TODO: Press ___ to restart
+    # ### TODO: Press p/space to pause - set FPS = 0
 
+    GAME_OVER_WIDTH = (SCREEN_WIDTH / 3) 
+    GAME_OVER_HEIGHT = (SCREEN_WIDTH / 3) 
+    
     screen.blit(bigFont.render('Game Over! You lost.', 1, (255, 255,
-                0)), (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 40))
+                0)), (GAME_OVER_WIDTH, GAME_OVER_HEIGHT - 40))
 
     screen.blit(bigFont.render('Your final score was: '
                 + str(total_score), 1, (255, 255, 0)),
-                (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 20))
+                (GAME_OVER_WIDTH, GAME_OVER_HEIGHT - 20))
 
     anyKey = bigFont.render('Press the enter key to exit.', 1, (255,
                             255, 0))
-    screen.blit(anyKey, (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    screen.blit(anyKey, (GAME_OVER_WIDTH, GAME_OVER_HEIGHT))
 
     pygame.display.flip()
 
