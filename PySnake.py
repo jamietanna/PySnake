@@ -3,6 +3,7 @@
 
 import pygame
 import random
+import math
 
 ################################################ 
 #### Globals
@@ -25,8 +26,12 @@ WIDTH = 640
 HEIGHT = 400
 TOP_GUTTER = 20
 
+## ballS
 
-
+SIZE = 10
+number_of_balls = 2
+my_balls = []
+BALL_COUNT = 0 
 
 ################################################ 
 ########### Main Code
@@ -117,6 +122,61 @@ class Food:
         else:
             return True
 
+## BALL CLASS
+
+class Ball():
+    def __init__(self, (x, y), SIZE):
+        self.x = x
+        self.y = y
+        self.size = SIZE
+        self.colour = (0, 0, 255)
+        self.thickness = 1
+        self.speed = 2
+        self.angle = 0
+
+    def display(self):
+        pygame.draw.circle(screen, self.colour, (int(self.x), int(self.y)), self.size, self.thickness)
+
+    def move(self):
+        self.x += math.sin(self.angle) * self.speed
+        self.y -= math.cos(self.angle) * self.speed
+
+    def bounce(self):
+        if self.x > WIDTH - self.size:
+            self.x = 2*(WIDTH - self.size) - self.x
+            self.angle = - self.angle
+
+        elif self.x < self.size:
+            self.x = 2*self.size - self.x
+            self.angle = - self.angle
+
+        if self.y > HEIGHT - self.size:
+            self.y = 2*(HEIGHT - self.size) - self.y
+            self.angle = math.pi - self.angle
+
+        elif self.y < self.size:
+            self.y = 2*self.size - self.y
+            self.angle = math.pi - self.angle
+
+    def collide(self, x, y):
+        if x < self.x - self.size or x > self.x + self.size:
+            return False
+        elif y < self.y - self.size or y > self.y + self.size:
+            return False
+        else:
+            return True
+
+# drawing the balls
+
+for n in range(number_of_balls):
+    
+    x = random.randint(SIZE, WIDTH)
+    y = random.randint(SIZE, HEIGHT)
+    ball = Ball((x, y), SIZE)
+    ball.speed = 1
+    ball.angle = random.uniform(0, math.pi*2)
+    my_balls.append(ball)
+
 # initialise our screen, clock
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -140,6 +200,10 @@ while running:
     snake.move()
     snake.draw()
     food.draw()
+    for ball in my_balls:
+        ball.move()
+        ball.bounce()
+        ball.display()
 
     # http://stackoverflow.com/questions/10077644/python-display-text-w-font-color
     myfont = pygame.font.SysFont("monospace", 18)
@@ -151,12 +215,26 @@ while running:
     elif snake.x <= 0 or snake.x >= WIDTH-1:
         running = False
     elif snake.y <= 0 or snake.y >= HEIGHT-1:
-#        print "Crash!"
         running = False
     elif food.check(snake.x,snake.y):
         snake.eat()
         food.erase()
         food = Food(screen)
+        # spawns more balls when eaten
+        BALL_COUNT+=1
+        if (BALL_COUNT == 1):
+            x = random.randint(SIZE, WIDTH)
+            y = random.randint(SIZE, HEIGHT)
+            ball = Ball((x, y), SIZE)
+            ball.speed = 1
+            ball.angle = random.uniform(0, math.pi*2)
+            my_balls.append(ball)
+            BALL_COUNT = 0
+
+    # only if head collides with ball,tail is OK
+    for ball in my_balls:
+        if ball.collide(snake.x,snake.y):
+            running = False
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
