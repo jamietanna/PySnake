@@ -13,8 +13,7 @@ import string
 #### Globals
 ################################################
 
-#### TODO: Pause?
-#### TODO: Rules?
+#### TODO: Pause, main menu, rules
 #### TODO: Nightmare mode - have to press E before eating, otherwise blows up & kills
 #### TODO: Twitter Bot
 #### TODO: Speed multiplier for different screen sizes
@@ -296,7 +295,6 @@ class SpecialFood(Food):
         if random.randint(0, 100) in range(SPECIAL_FOOD_GOOD):
             self.specialGood = True
         else:
-
             self.specialGood = False
 
         self.specialPower = powers[random.randint(0, 100) % 4]
@@ -400,7 +398,7 @@ class SpecialEffect:
                         theSnake.len *= 0.75
                 theSnake.colour = SNAKE_COLOUR
             else:
-                pass
+                return -1
 
         # powers = ['points', 'speed', 'size', 'balls']
 
@@ -484,8 +482,8 @@ active_food = []
 
 active_food.append(Food(screen))
 
-# for n in range(15):
-  # active_food.append(SpecialFood(screen))
+for n in range(35):  
+    active_food.append(SpecialFood(screen))
 
 active_effects = []
 
@@ -542,7 +540,24 @@ while running:
     # snake = specialEffect.tick(snake)
 
     for effect in active_effects:
-        snake = effect.tick(snake)
+        ret = effect.tick(snake)
+    
+    # for (indx, effect) in enumerate(active_effects):
+        # ret = effect.tick(snake)
+        # if ret == -1:
+            # print active_effects
+        
+        
+            # del active_effects[indx]
+            
+            # active_food[indx].erase()
+            # del active_food[indx]
+            
+            # print active_effects
+            
+        # else:
+            # snake = ret
+
     for food in active_food:
         food.draw()
 
@@ -562,25 +577,14 @@ while running:
 
     topoffset = 10
 
-    for food in active_food:
-        if food.__class__.__name__ == 'Food':
-            screen.blit(smallFont.render('Time left: '
-                        + str(food.time), 1, (255, 255, 0)), (0,
-                        topoffset))
-        elif food.__class__.__name__ == 'SpecialFood':
+    # for food in active_food:
+        
 
-          # screen.blit(smallFont.render('Time left (special - ' + food.specialPower + ' - ' + str(food.specialGood) + '): ' + str(food.time), 1, (255, 255, 0)), (0, topoffset))
-
-            screen.blit(smallFont.render('Time left (special): '
-                        + str(food.time), 1, SPECIAL_COLOUR), (0,
-                        topoffset))
-        topoffset += 10  # inc
-
-    for effect in active_effects:
-
+    for (indx, effect) in enumerate(active_effects):
+    
     # ### TODO:
 
-        if effect.duration > 0:
+        if effect.duration >= 0:
 
             if effect.power == 'speed':
                 if effect.goodBad:
@@ -617,7 +621,9 @@ while running:
 # ........    theSnake.len *= 1.5
 
             topoffset += 10  # inc
-
+        else:
+            print "Negative at", indx
+            del active_effects[indx]
     # end if > 0
 
     screen.blit(smallFont.render('Mode: ' + MODE, 1, (255, 255, 0)),
@@ -635,7 +641,18 @@ while running:
     # http://stackoverflow.com/questions/522563/accessing-the-index-in-python-for-loops
 
     for (indx, food) in enumerate(active_food):
+        if food.__class__.__name__ == 'Food':
+            screen.blit(smallFont.render('Time left: '
+                        + str(food.time), 1, (255, 255, 0)), (0,
+                        topoffset))
+        elif food.__class__.__name__ == 'SpecialFood':
 
+          # screen.blit(smallFont.render('Time left (special - ' + food.specialPower + ' - ' + str(food.specialGood) + '): ' + str(food.time), 1, (255, 255, 0)), (0, topoffset))
+
+            screen.blit(smallFont.render('Time left (special): '
+                        + str(food.time), 1, SPECIAL_COLOUR), (0,
+                        topoffset))
+        topoffset += 10  # inc
       # print
 
         if food.check(snake.x, snake.y):
@@ -705,12 +722,26 @@ while running:
                             snake))
                 elif food.specialPower == 'balls':
                     if food.specialGood:
-                        print 'One of the balls was removed!'
-                        del active_balls[-1]  # last element
+                        
+                        toRemove = (food.specialDuration % 10) + 1
+                        
+                        if toRemove == 1:
+                            print 'One of the balls was removed!'
+                        else:
+                            print toRemove, "balls were removed"
+                        
+                        
+                        for i in range(toRemove):
+                            if len(active_balls) > 1:
+                                del active_balls[-1]  # last element
+                            else:
+                                break
+                        
+                        
                     else:
                         print 'Another ball was added!'
                         appendBallToList(active_balls)
-
+                        
           # if food.__class__.__name__ == 'SpecialFood':
 
       # # Create a new one
@@ -732,8 +763,8 @@ while running:
             if food.__class__.__name__ == 'Food':
                 active_food[indx] = Food(screen)
 
-            # elif food.__class__.__name__ == 'SpecialFood':
-            #    active_food[indx] = SpecialFood(screen)
+            elif food.__class__.__name__ == 'SpecialFood':
+               del active_food[indx] # = SpecialFood(screen)
 
             spawnedFood += 1
 
