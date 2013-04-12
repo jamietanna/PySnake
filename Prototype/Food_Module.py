@@ -20,6 +20,14 @@ class Food(pygame.sprite.Sprite):
         self.image.fill(colour)
         self.rect = self.image.get_rect()
         self.rect.topleft = position
+        self.time = 150
+
+    def expire(self):
+        self.time -= 1  # decrement
+        if self.time <= 0:
+            return True
+        else:
+            return False
 
 class FoodBlue(Food):
     _DEFAULT_COLOUR = [0, 0, 255]

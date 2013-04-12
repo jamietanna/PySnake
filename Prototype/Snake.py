@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import pygame
+import sys
+import string
+import random
 from pygame import *
 from Food_Module import *
-from Snake_Module import Snake
-import random
+from Snake_Module import *
+from Ball_Module import *
 from random import choice
+
 
 global gameOver
 global direction
@@ -13,9 +17,14 @@ global score
 global userEscape
 
 PAGE_TITLE = 'PySnake - Head & Body'
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+pygame.font.init()
+smallFont = pygame.font.SysFont('Arial', 10)
 
 pygame.init()
-DEFAULT_SCREEN_SIZE = [800, 600]
+DEFAULT_SCREEN_SIZE = [SCREEN_WIDTH, SCREEN_HEIGHT]
 
 # possibleDirections = [Snake.SnakeMove.UP, Snake.SnakeMove.DOWN, Snake.SnakeMove.LEFT, Snake.SnakeMove.RIGHT]
 
@@ -32,7 +41,7 @@ INITIAL_DIRECTION = Snake.SnakeMove.UP  # Random possibly?
 # INITIAL_DIRECTION = Snake.SnakeMove.LEFT
 # INITIAL_DIRECTION = Snake.SnakeMove.RIGHT
 
-DEFAULT_UPDATE_SPEED = 100  # Speed of snake
+DEFAULT_UPDATE_SPEED = 60  # Speed of snake
 INITIAL_FOOD_NUM = 3
 
 updatetime = pygame.time.get_ticks() + DEFAULT_UPDATE_SPEED
@@ -45,11 +54,13 @@ display.set_caption(PAGE_TITLE)
 # Globals - Sprites
 
 snake = Snake(None, None, None)
+myBall = Ball((100,100))
+
+
 
 # ........Snake(colour, size, position)
 
 food = []  # define as an empty list
-
 
 # Draws the snake on screen
 
@@ -98,6 +109,7 @@ def exit_funct(score):
     exit()
 
 
+
 userEscape = False  # User ends game by ESC
 gameOver = False  # Game over by death
 running = True
@@ -107,12 +119,12 @@ score = 0
 for n in range(INITIAL_FOOD_NUM):
     create_food()
 
+
 create_food(None, 'FoodBlue')
 
 while running:
     # print food
-
-    
+    screen.blit(smallFont.render('Score: ' + str(score), 1, (255,255, 255)), (40, 40))
     
     screen.fill(0)  # color screen black
     if direction == None:
@@ -121,7 +133,7 @@ while running:
     # Validates key press
 
     for keyPress in event.get():
-        if keyPress.type == KEYUP:
+        if keyPress.type == KEYDOWN:
             if keyPress.key == K_ESCAPE or keyPress.key == K_q:
                 userEscape = True
             elif keyPress.key == K_UP:
@@ -162,9 +174,29 @@ while running:
                     display.set_caption(PAGE_TITLE + ': ' + str(score))
                 draw_food(foodBit)
 
+
             draw_snake()
+            screen.blit(smallFont.render('Current Score: ' + str(score), 1, (255,255, 255)), (0, 0))
+            screen.blit(smallFont.render('Food Time left: '+ str(foodBit.time), 1, (255, 255, 255)), (0,10))
+            
+            # Ball stuff
+            screen.blit(myBall.image, myBall.rect)
+            myBall.bounce()
+            myBall.move()
+            myBall.update()
+            myBall.display()
+
             pygame.display.update()
+            
             updatetime += DEFAULT_UPDATE_SPEED
+            #print (str(myBall.x) + " " + str(myBall.y))
+
+            if foodBit.expire():
+                #snake.tail.fuck()
+                #snake.tail.remove_tail_section(1)
+                create_food(idx)
+
+
     else:
         display.set_caption(PAGE_TITLE + ': ' + str(score) + ' YOU DIED')
 

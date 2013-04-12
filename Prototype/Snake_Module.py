@@ -25,6 +25,18 @@ class Snake(pygame.sprite.Sprite):
             rect.topleft = position
             self.sections.append({'image':section, 'rect':rect})
 
+        def remove_tail_section(self, number):
+            for x in range(number):
+                lastindex = len(self.sections) - 1
+                if lastindex == 0:
+                    return
+                del self.sections[lastindex]
+
+        def fuck(self):
+            colour = [0, 0, 0]
+            for count in range(len(self.sections)):
+                self.sections[count]['image'].fill(colour)
+
     class _SnakeHead(pygame.sprite.Sprite):
         def __init__(self, colour, size, position):
             self.image = pygame.Surface(size)
@@ -133,7 +145,7 @@ class Snake(pygame.sprite.Sprite):
             rcolour = randint(50,255)
             bcolour = randint(50,255)
             gcolour = randint(50,255)
-            color = [rcolour, bcolour, gcolour]
+            colour = [rcolour, bcolour, gcolour]
             # Randomise colour of new tail section
 
             lastindex = len(self.tail.sections) - 1
@@ -150,4 +162,4 @@ class Snake(pygame.sprite.Sprite):
             elif current_direction == Snake.SnakeMove.DOWN:
                 Y = Y + size + (count*size)
 
-            self.tail.add_tail_section(color, self.size, [X, Y])
+            self.tail.add_tail_section(colour, self.size, [X, Y])
