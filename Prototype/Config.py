@@ -1,0 +1,6 @@
+import pygame
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+DEFAULT_SCREEN_SIZE = [SCREEN_WIDTH, SCREEN_HEIGHT]
+screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE)

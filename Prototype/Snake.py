@@ -8,6 +8,7 @@ from pygame import *
 from Food_Module import *
 from Snake_Module import *
 from Ball_Module import *
+from Config import *
 from random import choice
 
 
@@ -17,14 +18,13 @@ global score
 global userEscape
 
 PAGE_TITLE = 'PySnake - Head & Body'
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+
 
 pygame.font.init()
 smallFont = pygame.font.SysFont('Arial', 10)
 
 pygame.init()
-DEFAULT_SCREEN_SIZE = [SCREEN_WIDTH, SCREEN_HEIGHT]
+
 
 # possibleDirections = [Snake.SnakeMove.UP, Snake.SnakeMove.DOWN, Snake.SnakeMove.LEFT, Snake.SnakeMove.RIGHT]
 
@@ -48,17 +48,15 @@ updatetime = pygame.time.get_ticks() + DEFAULT_UPDATE_SPEED
 
 # Set up Screen
 
-screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE)
 display.set_caption(PAGE_TITLE)
 
 # Globals - Sprites
 
 snake = Snake(None, None, None)
-myBall = Ball((100,100))
-
-
 
 # ........Snake(colour, size, position)
+
+myBall = Ball((100,100)) # just one ball for now, need to make a list of them
 
 food = []  # define as an empty list
 
@@ -108,6 +106,11 @@ def exit_funct(score):
     print 'Final score was ' + str(score)
     exit()
 
+# draw balls
+
+active_balls = []
+for n in range(NUMBER_OF_BALLS):
+    appendBallToList(active_balls)
 
 
 userEscape = False  # User ends game by ESC
@@ -180,11 +183,12 @@ while running:
             screen.blit(smallFont.render('Food Time left: '+ str(foodBit.time), 1, (255, 255, 255)), (0,10))
             
             # Ball stuff
-            screen.blit(myBall.image, myBall.rect)
-            myBall.bounce()
-            myBall.move()
-            myBall.update()
-            myBall.display()
+            for myBall in active_balls:
+                screen.blit(myBall.image, myBall.rect)
+                myBall.bounce()
+                myBall.move()
+                myBall.update()
+                myBall.display()
 
             pygame.display.update()
             
