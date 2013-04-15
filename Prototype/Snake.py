@@ -127,6 +127,9 @@ killerBall=KillerBall((200,0))
     
 foodGroup.add(FoodBlue([0, 0, 255], [15, 15], {'size': 2}, [10, 30]))
 foodGroup.add(FoodBlue([0, 0, 255], None, None, [200, 200]))
+foodGroup.add(FoodCurse(None, None, None, [100,100]))
+
+
 
 #### Sprite collision apadted from:
 #### https://github.com/ankur0890/Pygame-Examples-For-Learning/blob/master/detectSpriteCollision.py
@@ -152,6 +155,9 @@ while running:
 
         properties = collisions[0].get_properties()
         foodGroup.add(make_food(properties['type'], properties['colour'], properties['size'], properties['effect']))
+
+        if properties['effect']['curse'] == True:
+            snake.curse_tail(True)
 
                 # ##################
 
@@ -207,7 +213,7 @@ while running:
             foodGroup.remove(foodBit)
             
 
-    screen.fill(0)  # color screen black
+    screen.fill(BACKGROUND_COLOUR)  # color screen black
     if direction == None:
         direction = INITIAL_DIRECTION
 

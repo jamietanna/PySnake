@@ -2,6 +2,16 @@ import pygame
 #import random
 from random import randint
 
+
+CURSE_TAIL_COLOUR = [0,0,0]#[100,100,100]
+
+def random_rgb():
+    rcolour = randint(50,255)
+    bcolour = randint(50,255)
+    gcolour = randint(50,255)
+    return [rcolour, bcolour, gcolour]
+
+
 # Static function
 class Callable:
     def __init__(self, anycallable):
@@ -37,6 +47,9 @@ class Snake(pygame.sprite.Sprite):
             self.image.fill(colour)
             self.rect = self.image.get_rect()
             self.rect.topleft = position
+        
+        def set_colour(self, colour):
+            self.image.fill(colour)
 
     #---------------------------------------------------------------------------
 
@@ -82,6 +95,9 @@ class Snake(pygame.sprite.Sprite):
 
         self.head = self.segments[0]
         #self.tail = Snake._SnakeTail()
+
+        self.curseTail = False
+
 
         for x in range(1, 5): # Initial Length
             tailposition = [(position[0] - x*size[0]), position[1]]
@@ -146,10 +162,11 @@ class Snake(pygame.sprite.Sprite):
         if number > 0:
             for count in range(number):
             # ### TODO - randomly generate from the colour of the food eaten
-                rcolour = randint(50,255)
-                bcolour = randint(50,255)
-                gcolour = randint(50,255)
-                colour = [rcolour, bcolour, gcolour]
+                
+                if self.curseTail:
+                    colour = CURSE_TAIL_COLOUR
+                else:
+                    colour = random_rgb()
                 # Randomise colour of new tail section
 
                 lastindex = len(self.segments) - 1
@@ -176,3 +193,16 @@ class Snake(pygame.sprite.Sprite):
                 if(len(self.segments) > 1):
                     del self.segments[-1]
                 ### TODO if length 0 then die?
+    
+    def curse_tail(self,enable=True):
+        self.curseTail = enable
+
+        for (idx, s) in enumerate(self.segments):
+            # show the head
+            if idx > 0:
+                if self.curseTail:
+                    s.set_colour(CURSE_TAIL_COLOUR)
+                else:
+                    s.set_colour(random_rgb())
+            else:
+                s.set_colour(random_rgb())
