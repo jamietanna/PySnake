@@ -65,6 +65,7 @@ class Food(pygame.sprite.Sprite):
             else:
                 return False
         else:
+            # -1 indicates infinite
             return False
 
 

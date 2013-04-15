@@ -10,19 +10,6 @@ from Config import *
 import random
 from random import choice
 
-
-# import pygame
-# import sys
-# import string
-# import random
-# from pygame import *
-# from Food_Module import *
-# from Snake_Module import *
-# from Ball_Module import *
-
-# from random import choice
-
-
 global gameOver
 global direction
 global score
@@ -120,9 +107,9 @@ for n in range(INITIAL_FOOD_NUM):
 
 for n in range(INITIAL_BALL_NUM):
     pos = randint(0,400)
-    ballGroup.add(Ball((pos,pos)))
+    ballGroup.add(BallStandard((pos,pos)))
 
-killerBall=KillerBall((200,0))
+killerBall=BallKiller((200,0))
 
     
 foodGroup.add(FoodBlue([0, 0, 255], [15, 15], {'size': 2}, [10, 30]))
