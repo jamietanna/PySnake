@@ -85,7 +85,7 @@ INITIAL_DIRECTION = Snake.SnakeMove.UP  # Random possibly?
 
 DEFAULT_UPDATE_SPEED = 70  # Speed of snake, lower the quicker
 INITIAL_FOOD_NUM = 3
-INITIAL_BALL_NUM = 30
+INITIAL_BALL_NUM = 5
 
 updatetime = pygame.time.get_ticks() + DEFAULT_UPDATE_SPEED
 
@@ -119,9 +119,10 @@ for n in range(INITIAL_FOOD_NUM):
     foodGroup.add(make_food())
 
 for n in range(INITIAL_BALL_NUM):
-    ballGroup.add(Ball((100,100)))
+    pos = randint(0,400)
+    ballGroup.add(Ball((pos,pos)))
 
-myBall = Ball((50,50))
+killerBall=KillerBall((200,0))
 
     
 foodGroup.add(FoodBlue([0, 0, 255], [15, 15], {'size': 2}, [10, 30]))
@@ -168,16 +169,30 @@ while running:
         snakeSprite.add(snake.get_sections())
         snakeSections = snake.get_sections()
  
-    collisions = pygame.sprite.spritecollide(snakeHead,ballGroup, True)
-    if collisions:
-        print "COLLISION"
+    collisions = pygame.sprite.spritecollide(snakeHead,ballGroup, False)
+    #if collisions:
+        #print "COLLISION"
 
+    #for ball in ballGroup:
+        #if pygame.sprite.spritecollide(ball,ballGroup, False):
+           #print "BOUNCE"
+  
+    collisions = pygame.sprite.spritecollide(killerBall,ballGroup, False)
+    for ball in collisions:
+        ball.collision(killerBall)
+            
+        # the final boolean indicates whether to remove any collided objects from the Group, namely tmp - which we don't want generally
 
     ##### TODO: BALLS
 
     
+    screen.blit(killerBall.image, killerBall.rect)
+    killerBall.bounce()
+    killerBall.move()
+    killerBall.update()
+    killerBall.display()
+    
     for ball in ballGroup:
-        screen.blit(ball.image, ball.rect)
         ball.bounce()
         ball.move()
         ball.update()
@@ -230,6 +245,7 @@ while running:
             foodGroup.draw(screen)
             snakeSprite.draw(screen)
             ballGroup.draw(screen)
+            screen.blit(killerBall.image, killerBall.rect)
 
 
             pygame.display.update()
