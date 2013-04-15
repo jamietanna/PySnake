@@ -1,15 +1,26 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import pygame
-import sys
-import string
-import random
 from pygame import *
 from Food_Module import *
 from Snake_Module import *
 from Ball_Module import *
 from Config import *
+import random
 from random import choice
+
+
+# import pygame
+# import sys
+# import string
+# import random
+# from pygame import *
+# from Food_Module import *
+# from Snake_Module import *
+# from Ball_Module import *
+
+# from random import choice
 
 
 global gameOver
@@ -17,14 +28,45 @@ global direction
 global score
 global userEscape
 
+
+def make_food(type='FoodNormal', colour=None, size=None, effect=None):
+    global snake
+
+    # Keep food within decent boundaries
+    # Use eval in case we're spawning a different type of food
+
+    hbound = DEFAULT_SCREEN_SIZE[0] / eval(type
+            + '._DEFAULT_SIZE[0] - 1')
+    vbound = DEFAULT_SCREEN_SIZE[1] / eval(type
+            + '._DEFAULT_SIZE[1] - 1')
+    (X, Y) = (None, None)
+
+    # ### TODO check that food doesn't spawn over another piece of food
+
+    # Make sure the food doesn't spawn over the snakes position
+
+    while snake.occupies_position([X, Y]) == True:
+        X = random.randint(0, hbound) * Food._DEFAULT_SIZE[0]
+        Y = random.randint(0, vbound) * Food._DEFAULT_SIZE[1]
+
+    return eval(type + '(' + str(colour) + ', ' + str(size) + ', ' + str(effect) + ', ['+str(X)+', '+str(Y)+'])')
+
+
+############ TODO: light blue = neutralFood - literally just testing
+#### other types of food i.e. standard increase, bad, etc
+### maybe they all have a few properties like effects? i.e. +-growth
+
+# Draw food to screen, one piece of food at a time
+
+
+def exit_funct(score):
+    print 'Final score was ' + str(score)
+    exit()
+
+
 PAGE_TITLE = 'PySnake - Head & Body'
 
-
-pygame.font.init()
-smallFont = pygame.font.SysFont('Arial', 10)
-
 pygame.init()
-
 
 # possibleDirections = [Snake.SnakeMove.UP, Snake.SnakeMove.DOWN, Snake.SnakeMove.LEFT, Snake.SnakeMove.RIGHT]
 
@@ -41,76 +83,28 @@ INITIAL_DIRECTION = Snake.SnakeMove.UP  # Random possibly?
 # INITIAL_DIRECTION = Snake.SnakeMove.LEFT
 # INITIAL_DIRECTION = Snake.SnakeMove.RIGHT
 
-DEFAULT_UPDATE_SPEED = 60  # Speed of snake
+DEFAULT_UPDATE_SPEED = 70  # Speed of snake, lower the quicker
 INITIAL_FOOD_NUM = 3
+INITIAL_BALL_NUM = 30
 
 updatetime = pygame.time.get_ticks() + DEFAULT_UPDATE_SPEED
 
 # Set up Screen
 
+
 display.set_caption(PAGE_TITLE)
 
 # Globals - Sprites
 
-snake = Snake(None, None, None)
+snake = Snake()
 
 # ........Snake(colour, size, position)
 
-myBall = Ball((100,100)) # just one ball for now, need to make a list of them
+foodGroup = pygame.sprite.Group()
+ballGroup = pygame.sprite.Group()
+# returns a Food object given from the parameters
+#### TODO: option to check collisons with existing food
 
-food = []  # define as an empty list
-
-# Draws the snake on screen
-
-def draw_snake():
-    screen.blit(snake.head.image, snake.head.rect)  # Draw head
-    for count in range(len(snake.tail.sections)):
-        screen.blit(snake.tail.sections[count]['image'],
-                    snake.tail.sections[count]['rect'])  # Draw all the tail sections on the screen
-
-
-# Creates some new food in the food list, given the index of the element. if none, it appends one piece of food given by type
-def create_food(idx=None, type='Food'):
-    global food
-    global snake
-
-    # Keep food within decent boundaries
-
-    hbound = DEFAULT_SCREEN_SIZE[0] / Food._DEFAULT_SIZE[0] - 1
-    vbound = DEFAULT_SCREEN_SIZE[1] / Food._DEFAULT_SIZE[1] - 1
-    (X, Y) = (None, None)
-
-    # ### TODO check that food doesn't spawn over another piece of food
-
-    # Make sure the food doesn't spawn over the snakes position
-
-    while snake.occupies_position([X, Y]) == True:
-        X = random.randint(0, hbound) * Food._DEFAULT_SIZE[0]
-        Y = random.randint(0, vbound) * Food._DEFAULT_SIZE[1]
-
-    if idx == None:
-	# append if no index
-	food.append(eval(type + '(None, None, [X, Y])'))
-    else:
-	# otherwise replace at correct index
-        food[idx] = eval(type + '(None, None, [X, Y])')
-
-
-# Draw food to screen, one piece of food at a time
-
-def draw_food(foodBit):
-    screen.blit(foodBit.image, foodBit.rect)
-
-
-def exit_funct(score):
-    print 'Final score was ' + str(score)
-    exit()
-
-# draw balls
-
-active_balls = []
-for n in range(NUMBER_OF_BALLS):
-    appendBallToList(active_balls)
 
 
 userEscape = False  # User ends game by ESC
@@ -119,16 +113,85 @@ running = True
 direction = None
 score = 0
 
+## Generate our initial food items
+
 for n in range(INITIAL_FOOD_NUM):
-    create_food()
+    foodGroup.add(make_food())
 
+for n in range(INITIAL_BALL_NUM):
+    ballGroup.add(Ball((100,100)))
 
-create_food(None, 'FoodBlue')
+myBall = Ball((50,50))
+
+    
+foodGroup.add(FoodBlue([0, 0, 255], [15, 15], {'size': 2}, [10, 30]))
+foodGroup.add(FoodBlue([0, 0, 255], None, None, [200, 200]))
+
+#### Sprite collision apadted from:
+#### https://github.com/ankur0890/Pygame-Examples-For-Learning/blob/master/detectSpriteCollision.py
+#### http://www.devshed.com/c/a/Python/PyGame-for-Game-Development-Sprite-Groups-and-Collision-Detection/
+
+snakeSprite = pygame.sprite.Group()
+
+snakeSprite.add(snake.get_sections())
+snakeSections = snake.get_sections()
+snakeHead = snake.get_head()
 
 while running:
-    # print food
-    screen.blit(smallFont.render('Score: ' + str(score), 1, (255,255, 255)), (40, 40))
+
+    #for snakeSegment in snakeSections:
+
+    collisions = pygame.sprite.spritecollide(snakeHead,
+                foodGroup, True)
+    if collisions:
+
+            # #### TODO reactToCollision(properties, snake, foodGroup)
+
+            # get the collided food item, then recreate it in a new random, position
+
+        properties = collisions[0].get_properties()
+        foodGroup.add(make_food(properties['type'], properties['colour'], properties['size'], properties['effect']))
+
+                # ##################
+
+                ## snake.adjust_tail_size()
+
+        snake.adjust_tail_size(properties['effect']['size'], direction)
+
+            #snake.lengthen_tail(1, direction)
+        score += properties['effect']['score']
+        display.set_caption(PAGE_TITLE + ': ' + str(score))
+
+            # update these so we can then redraw them later - only update once we've got a larger snake, otherwise we're wasting CPU!
+
+        snakeSprite = pygame.sprite.Group()
+        snakeSprite.add(snake.get_sections())
+        snakeSections = snake.get_sections()
+ 
+    collisions = pygame.sprite.spritecollide(snakeHead,ballGroup, True)
+    if collisions:
+        print "COLLISION"
+
+
+    ##### TODO: BALLS
+
     
+    for ball in ballGroup:
+        screen.blit(ball.image, ball.rect)
+        ball.bounce()
+        ball.move()
+        ball.update()
+        ball.display()
+
+
+
+    for (idx, foodBit) in enumerate(foodGroup):
+        if foodBit.expire():
+            properties = foodBit.get_properties()
+            foodGroup.add(make_food(properties['type'], properties['colour'], properties['size'], properties['effect']))
+            foodGroup.remove(foodBit)
+            
+
     screen.fill(0)  # color screen black
     if direction == None:
         direction = INITIAL_DIRECTION
@@ -161,48 +224,19 @@ while running:
                                   DEFAULT_SCREEN_SIZE[1])
             if movement == False:
                 gameOver = True
-            
-            # enumerate through so we can get the index, too
-            for (idx, foodBit) in enumerate(food):
-		#print pygame.sprite.spritecollide(
-		
-		# if we've hit the food, then respawn it, and grow
-                if snake.occupies_position(foodBit.rect.topleft) == True:
-                    create_food(idx)
 
-		    # If number is changed, tail will length by a greater value, seems to crash around 5
-		    # ### TODO change depending on what eaten?
-                    snake.lengthen_tail(1, direction)
-                    score += 1
-                    display.set_caption(PAGE_TITLE + ': ' + str(score))
-                draw_food(foodBit)
+            # much better method of drawing them all - handled by the SpriteGroup
 
+            foodGroup.draw(screen)
+            snakeSprite.draw(screen)
+            ballGroup.draw(screen)
 
-            draw_snake()
-            screen.blit(smallFont.render('Current Score: ' + str(score), 1, (255,255, 255)), (0, 0))
-            screen.blit(smallFont.render('Food Time left: '+ str(foodBit.time), 1, (255, 255, 255)), (0,10))
-            
-            # Ball stuff
-            for myBall in active_balls:
-                screen.blit(myBall.image, myBall.rect)
-                myBall.bounce()
-                myBall.move()
-                myBall.update()
-                myBall.display()
 
             pygame.display.update()
-            
             updatetime += DEFAULT_UPDATE_SPEED
-            #print (str(myBall.x) + " " + str(myBall.y))
-
-            if foodBit.expire():
-                #snake.tail.fuck()
-                #snake.tail.remove_tail_section(1)
-                create_food(idx)
-
-
     else:
-        display.set_caption(PAGE_TITLE + ': ' + str(score) + ' YOU DIED')
+        display.set_caption(PAGE_TITLE + ': ' + str(score) + ' YOU DIED'
+                            )
 
         # this is for when we're dead
 
@@ -216,3 +250,6 @@ while running:
 # this is for when the user's escaped
 
 exit_funct(score)
+
+
+

@@ -1,5 +1,5 @@
 import pygame
-import random
+#import random
 from random import randint
 
 # Static function
@@ -11,38 +11,33 @@ class Snake(pygame.sprite.Sprite):
     # Private constants
     _DEFAULT_COLOUR = [255, 255, 255] # White
     _DEFAULT_SIZE = [10, 10]
-    _DEFAULT_POSITION = [100, 100] # Any for now
+    _DEFAULT_POSITION = [300, 300] # Any for now
+
+    segments = []
+
+    def get_sections(self):
+        G = pygame.sprite.Group()
+    
+        for s in self.segments:
+            G.add(s)
+
+        return G
+
+    def get_head(self):
+
+        return self.head
 
     #-----PRIVATE CLASSES-------------------------------------------------------
-    class _SnakeTail(pygame.sprite.Sprite):
-        def __init__(self):
-            self.sections = []
 
-        def add_tail_section(self, colour, size, position):
-            section = pygame.Surface(size)
-            section.fill(colour)
-            rect = section.get_rect()
-            rect.topleft = position
-            self.sections.append({'image':section, 'rect':rect})
-
-        def remove_tail_section(self, number):
-            for x in range(number):
-                lastindex = len(self.sections) - 1
-                if lastindex == 0:
-                    return
-                del self.sections[lastindex]
-
-        def fuck(self):
-            colour = [0, 0, 0]
-            for count in range(len(self.sections)):
-                self.sections[count]['image'].fill(colour)
-
-    class _SnakeHead(pygame.sprite.Sprite):
+    class _SnakeSegment(pygame.sprite.Sprite):
         def __init__(self, colour, size, position):
+            # magic
+            pygame.sprite.Sprite.__init__(self)
             self.image = pygame.Surface(size)
             self.image.fill(colour)
             self.rect = self.image.get_rect()
             self.rect.topleft = position
+
     #---------------------------------------------------------------------------
 
     class SnakeMove():
@@ -68,7 +63,8 @@ class Snake(pygame.sprite.Sprite):
         #makes the function 'is_member' a static function
         SnakeMove_is_member = Callable(SnakeMove_is_member)
 
-    def __init__(self, colour, size, position):
+    def __init__(self, colour=None, size=None, position=None):
+        pygame.sprite.Sprite.__init__(self)
         # Make sure snake valid parameters
         if colour == None:
             colour = Snake._DEFAULT_COLOUR
@@ -81,17 +77,23 @@ class Snake(pygame.sprite.Sprite):
 
         self.color = colour
         self.size = size
-        self.head = Snake._SnakeHead(colour, size, position)
-        self.tail = Snake._SnakeTail()
+        #self.head = Snake._SnakeHead(colour, size, position)
+        self.segments.append(Snake._SnakeSegment(colour, size, position))
+
+        self.head = self.segments[0]
+        #self.tail = Snake._SnakeTail()
 
         for x in range(1, 5): # Initial Length
             tailposition = [(position[0] - x*size[0]), position[1]]
-            self.tail.add_tail_section(colour, size, tailposition)
+            #self.tail.add_tail_section(colour, size, tailposition)
+            self.segments.append(Snake._SnakeSegment(colour, size, tailposition))
+
 
     def move(self, direction, frame_width, frame_height):
         # New Position
         stepSize = self.head.image.get_rect()[2] # Size of head
         newHeadPos = [self.head.rect.topleft[0], self.head.rect.topleft[1]]
+        
         # This allows it to move through walls, will remove when updating next prototype
         if direction == Snake.SnakeMove.RIGHT:
             newHeadPos[0] = (newHeadPos[0]+stepSize)%frame_width
@@ -111,11 +113,12 @@ class Snake(pygame.sprite.Sprite):
         # Head's position updates
         self.head.rect.topleft = newHeadPos
 
-        # Loop through tail to move it to new position
-        for count in range(len(self.tail.sections)):
-            previousTailSectionPos = self.tail.sections[count]['rect'].topleft 
+        # Loop through segments to move it to new position
+        # ignore [0] as that's our head
+        for count in range(1,len(self.segments)):
+            previousTailSectionPos = self.segments[count].rect.topleft 
             # Each tail section is moved to the previous section's position, the first tail section moves to the head's previous position
-            self.tail.sections[count]['rect'].topleft = newTailSectionPos
+            self.segments[count].rect.topleft = newTailSectionPos
             newTailSectionPos = previousTailSectionPos
 
         return True
@@ -130,36 +133,46 @@ class Snake(pygame.sprite.Sprite):
             and self.head.rect.topleft[1] == position[1]:
                 return True
 
-        for count in range(len(self.tail.sections)):
-            if self.tail.sections[count]['rect'].topleft[0] == position[0] \
-            and self.tail.sections[count]['rect'].topleft[1] == position[1]:
+        for count in range(len(self.segments)):
+            if self.segments[count].rect.topleft[0] == position[0] \
+            and self.segments[count].rect.topleft[1] == position[1]:
                 return True
 
         return False
 
-    def lengthen_tail(self, number, current_direction):
-        size = self.size[0] # make new tail section same size as previous tail sections
+    def adjust_tail_size(self, number, current_direction):
+        size = self.size[0]
 
-        for count in range(number):
-	    # ### TODO - randomly generate from the colour of the food eaten
-            rcolour = randint(50,255)
-            bcolour = randint(50,255)
-            gcolour = randint(50,255)
-            colour = [rcolour, bcolour, gcolour]
-            # Randomise colour of new tail section
+        if number > 0:
+            for count in range(number):
+            # ### TODO - randomly generate from the colour of the food eaten
+                rcolour = randint(50,255)
+                bcolour = randint(50,255)
+                gcolour = randint(50,255)
+                colour = [rcolour, bcolour, gcolour]
+                # Randomise colour of new tail section
 
-            lastindex = len(self.tail.sections) - 1
-            X = self.tail.sections[lastindex]['rect'].topleft[0]
-            Y = self.tail.sections[lastindex]['rect'].topleft[1]
+                lastindex = len(self.segments) - 1
+                X = self.segments[lastindex].rect.topleft[0]
+                Y = self.segments[lastindex].rect.topleft[1]
+                
+                
+                # New tail section position
+                if current_direction == Snake.SnakeMove.RIGHT:
+                    X = X - size + (count*size)
+                elif current_direction == Snake.SnakeMove.LEFT:
+                    X = X + size + (count*size)
+                elif current_direction == Snake.SnakeMove.UP:
+                    Y = Y - size + (count*size)
+                elif current_direction == Snake.SnakeMove.DOWN:
+                    Y = Y + size + (count*size)
 
-            # New tail section position
-            if current_direction == Snake.SnakeMove.RIGHT:
-                X = X - size + (count*size)
-            elif current_direction == Snake.SnakeMove.LEFT:
-                X = X + size + (count*size)
-            elif current_direction == Snake.SnakeMove.UP:
-                Y = Y - size + (count*size)
-            elif current_direction == Snake.SnakeMove.DOWN:
-                Y = Y + size + (count*size)
-
-            self.tail.add_tail_section(colour, self.size, [X, Y])
+                #self.tail.add_tail_section(color, self.size, [X, Y])
+                self.segments.append(Snake._SnakeSegment(colour, self.size, [X, Y]))
+        else:
+            for count in range(abs(number)):
+                print len(self.segments)
+                print self.segments
+                if(len(self.segments) > 1):
+                    del self.segments[-1]
+                ### TODO if length 0 then die?

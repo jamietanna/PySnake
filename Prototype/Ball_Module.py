@@ -8,14 +8,20 @@ import sys
 from Config import *
 
 NUMBER_OF_BALLS = 5
-BALL_SPEED = 10
+BALL_SPEED = 0.035
 BALL_SIZE = 10
 
 class Ball(pygame.sprite.Sprite):
 
     def __init__(self, (x, y)):
         pygame.sprite.Sprite.__init__(self)
-        path = os.path.join('C:\\','Users','Mart','Documents','FSE','Prototype', 'ball.png')
+        
+        ### TESTING HACK FOR EASE OF USE
+
+        if os.name == 'nt':
+            path = os.path.join('C:\\','Users','Mart','Documents','FSE','Prototype', 'ball.png')
+        else:
+            path = 'ball.png'
         self.image = pygame.image.load(path)
         #self.image = pygame.image.load(os.path.join(os.getcwd(), "ball.png"))
         self.rect = self.image.get_rect()
