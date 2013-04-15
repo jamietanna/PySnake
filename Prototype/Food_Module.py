@@ -37,7 +37,6 @@ class Food(pygame.sprite.Sprite):
         self.image.fill(colour)
         self.rect = self.image.get_rect()
         self.rect.topleft = position
-        self.time = 150
 
     def get_properties(self):
         prop = dict()
