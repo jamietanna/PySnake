@@ -9,6 +9,8 @@ from Ball_Module import *
 from Config import *
 import random
 from random import choice
+from Game import *
+
 
 global gameOver
 global direction
