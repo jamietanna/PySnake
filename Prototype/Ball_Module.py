@@ -7,18 +7,15 @@ import pygame
 import sys
 from Config import *
 
-NUMBER_OF_BALLS = 5
-BALL_SPEED = 0.035
-BALL_SIZE = 10
-
+#BALL_SPEED = 0.035
+#BALL_SIZE = 10
+## Moved to config file
 
 def appendBallToList(listOfBalls):
     x = random.randint(BALL_SIZE, SCREEN_WIDTH)
     y = random.randint(BALL_SIZE, SCREEN_HEIGHT)
     ball = Ball((x, y))
     listOfBalls.append(ball)
-
-
 
 class Ball(pygame.sprite.Sprite):
 
@@ -34,7 +31,6 @@ class Ball(pygame.sprite.Sprite):
         else:
             path = os.path.join(os.getcwd(), self.FILENAME)
         
-
         self.image = pygame.image.load(path)
         #self.image = pygame.image.load(os.path.join(os.getcwd(), "ball.png"))
         self.rect = self.image.get_rect()
@@ -44,7 +40,6 @@ class Ball(pygame.sprite.Sprite):
         self.speed = BALL_SPEED
         self.angle = random.uniform(0, math.pi * 2)
         self.size = BALL_SIZE
-
 
     def display(self):
         self.rect.centerx, self.rect.centery = [self.x,self.y]
@@ -68,17 +63,6 @@ class Ball(pygame.sprite.Sprite):
             self.y = 2 * self.size - self.y
             self.angle = math.pi - self.angle
 
-    # probably need to replace this with a better function using the sprite collision detection
-    def collide(self, x, y):
-        if x < self.x - self.size or x > self.x + self.size:
-            return False
-        elif y < self.y - self.size or y > self.y + self.size:
-            return False
-        else:
-            return True
-
-
-
 class BallStandard(Ball):
 
     FILENAME = 'ball.png'
@@ -87,27 +71,24 @@ class BallStandard(Ball):
         super(BallStandard, self).__init__((x,y))
 
     def collision(self, ball):
-        dx = self.x - ball.x
-        dy = self.y - ball.y
-        dist = math.hypot(dx, dy)
-        if dist < self.size + ball.size:
+        (dx,dy) = (self.x - ball.x, self.y - ball.y) 
+        contact = math.hypot(dx, dy)
+        if contact < self.size + ball.size:
             ### Is there a way to cut this down?
+            # its as tidy as it can get really now :(
             
             tangent = math.atan2(dy, dx)
-            angle = 0.5 * math.pi + tangent
+            collision_angle = 0.5 * math.pi + tangent
             
-            angle1 = 2*tangent - self.angle
-            angle2 = 2*tangent - ball.angle
+            new_self_angle = 2*tangent - self.angle
+            new_ball_angle = 2*tangent - ball.angle
             
-            self.x += math.sin(angle)
-            self.y -= math.cos(angle)
-            self.angle = angle1
-            #self.display()
-            
-            ball.x -= math.sin(angle)
-            ball.y += math.cos(angle)
-            ball.angle = angle2
-            #ball.display()
+            self.x += math.sin(collision_angle)
+            self.y -= math.cos(collision_angle)
+            ball.x -= math.sin(collision_angle)
+            ball.y += math.cos(collision_angle)
+            (self.angle, ball.angle) = (new_self_angle, new_ball_angle)
+ 
 
 class BallKiller(Ball):
 
@@ -116,13 +97,5 @@ class BallKiller(Ball):
     def __init__(self, (x, y)):
         super(BallKiller, self).__init__((x,y))
 
-    def collision(self, ball):
-        dx = self.x - ball.x
-        dy = self.y - ball.y
-        tangent = math.atan2(dy, dx)
-        angle = 0.5 * math.pi + tangent
-        self.x += math.sin(angle)
-        self.y -= math.cos(angle)
-        ball.x -= math.sin(angle)
-        ball.y += math.cos(angle)
+    # dont need collision function for killer
         
