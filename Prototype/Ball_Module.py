@@ -41,6 +41,7 @@ class Ball(pygame.sprite.Sprite):
         self.angle = random.uniform(0, math.pi * 2)
         self.size = BALL_SIZE
 
+
     def display(self):
         self.rect.centerx, self.rect.centery = [self.x,self.y]
 
@@ -62,6 +63,8 @@ class Ball(pygame.sprite.Sprite):
         elif self.y < self.size:
             self.y = 2 * self.size - self.y
             self.angle = math.pi - self.angle
+
+
 
 class BallStandard(Ball):
 

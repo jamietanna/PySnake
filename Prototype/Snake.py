@@ -18,27 +18,53 @@ global score
 global userEscape
 
 
-def make_food(type='FoodNormal', colour=None, size=None, effect=None):
-    global snake
 
-    # Keep food within decent boundaries
-    # Use eval in case we're spawning a different type of food
 
-    hbound = DEFAULT_SCREEN_SIZE[0] / eval(type
-            + '._DEFAULT_SIZE[0] - 1')
-    vbound = DEFAULT_SCREEN_SIZE[1] / eval(type
-            + '._DEFAULT_SIZE[1] - 1')
-    (X, Y) = (None, None)
 
-    # ### TODO check that food doesn't spawn over another piece of food
 
-    # Make sure the food doesn't spawn over the snakes position
+G = Game()
 
-    while snake.occupies_position([X, Y]) == True:
-        X = random.randint(0, hbound) * Food._DEFAULT_SIZE[0]
-        Y = random.randint(0, vbound) * Food._DEFAULT_SIZE[1]
+running = True
+while running:
+    G.update()
 
-    return eval(type + '(' + str(colour) + ', ' + str(size) + ', ' + str(effect) + ', ['+str(X)+', '+str(Y)+'])')
+
+# NOTE: None of the code below this point will run!
+
+
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ############ TODO: light blue = neutralFood - literally just testing
@@ -74,7 +100,7 @@ INITIAL_DIRECTION = Snake.SnakeMove.UP  # Random possibly?
 
 DEFAULT_UPDATE_SPEED = 70  # Speed of snake, lower the quicker
 INITIAL_FOOD_NUM = 3
-INITIAL_BALL_NUM = 1
+INITIAL_BALL_NUM = 5
 
 updatetime = pygame.time.get_ticks() + DEFAULT_UPDATE_SPEED
 
@@ -94,9 +120,8 @@ ballGroup = pygame.sprite.Group()
 # returns a Food object given from the parameters
 #### TODO: option to check collisons with existing food
 
-freezeActiveBalls = False
-freezeActiveBallsTimer = 0
-killerBallSpawned = False
+
+
 userEscape = False  # User ends game by ESC
 gameOver = False  # Game over by death
 running = True
@@ -109,17 +134,15 @@ for n in range(INITIAL_FOOD_NUM):
     foodGroup.add(make_food())
 
 for n in range(INITIAL_BALL_NUM):
-    posx = randint(0,400)
-    posy = randint(0,400)
-    ballGroup.add(BallStandard((posx,posy)))
+    pos = randint(0,400)
+    ballGroup.add(BallStandard((pos,pos)))
+
+killerBall=BallKiller((200,0))
 
 
-
-    
 foodGroup.add(FoodBlue([0, 0, 255], [15, 15], {'size': 2}, [10, 30]))
 foodGroup.add(FoodBlue([0, 0, 255], None, None, [200, 200]))
 foodGroup.add(FoodCurse(None, None, None, [100,100]))
-foodGroup.add(FoodMysterious(None, None, None, [50,50]))
 
 
 
@@ -141,51 +164,19 @@ while running:
                 foodGroup, True)
     if collisions:
 
-            # #### TODO reactToCollision(properties, snake, foodGroup)
+        # #### TODO reactToCollision(properties, snake, foodGroup)
 
-            # get the collided food item, then recreate it in a new random, position
+        # get the collided food item, then recreate it in a new random, position
 
         properties = collisions[0].get_properties()
-        #print str(properties['type'])
-        if properties['type'] == 'FoodMysterious':
-            x = random.randint(0,500)
-            y = random.randint(0,500)
-            foodGroup.add(FoodMysterious(None, None, None, [x,y]))
-            # need to generate new mysterious properties so can't copy from old one
-        else:
-            foodGroup.add(make_food(properties['type'], properties['colour'], properties['size'], properties['effect']))
+        foodGroup.add(make_food(properties['type'], properties['colour'], properties['size'], properties['effect']))
 
-        if properties['effect']['curse']: # dont need == True
+        if properties['effect']['curse'] == True:
             snake.curse_tail(True)
 
-        if properties['effect']['spawnKiller']:
-            if killerBallSpawned == False:
-            # need a function to generate generic safe spawn
-            # maybe make the stimulus for a killer ball to be spawned more complicated 
-                killerBall= BallKiller((200,0))
-                killerBallSpawned = True
-
-        if properties['effect']['spawnStandard']:
-            # need to add counting mechanism so balls aren't spawned every time
-            ballGroup.add(BallStandard((0,0)))
                 # ##################
 
-        if properties['effect']['freezeBall']:
-            print "Balls Frozen"
-            freezeActiveBalls = True
-            freezeActiveBallsTimer = 100
                 ## snake.adjust_tail_size()
-
-        if properties['effect']['removeStandard']:
-            for b in ballGroup:
-                ballGroup.remove(b)
-                break
-
-        if properties['effect']['removeKiller']:
-            if killerBallSpawned:
-                killerBallSpawned = False
-                killerBall.remove()
-
 
         snake.adjust_tail_size(properties['effect']['size'], direction)
 
@@ -207,45 +198,34 @@ while running:
         #if pygame.sprite.spritecollide(ball,ballGroup, False):
            #print "BOUNCE"
   
-    if killerBallSpawned:
-        collisions = pygame.sprite.spritecollide(killerBall,ballGroup, False)
-        for ball in collisions:
-            ball.collision(killerBall)
-        # nothing to do with eachother, but both only happen if killer ball is spanwed
-        screen.blit(killerBall.image, killerBall.rect)
-        
-        if freezeActiveBalls == False:
-            killerBall.bounce()
-            killerBall.move()
-            killerBall.update()
-            killerBall.display()    
+    collisions = pygame.sprite.spritecollide(killerBall,ballGroup, False)
+    for ball in collisions:
+        ball.collision(killerBall)
+            
         # the final boolean indicates whether to remove any collided objects from the Group, namely tmp - which we don't want generally
 
     ##### TODO: BALLS
 
-        
+    
+    screen.blit(killerBall.image, killerBall.rect)
+    killerBall.bounce()
+    killerBall.move()
+    killerBall.update()
+    killerBall.display()
     
     for ball in ballGroup:
-        
-        if freezeActiveBalls == False:
-            ball.bounce()
-            ball.move()
-            ball.update()
-            ball.display()
-        else:
-            #print str(freezeActiveBallsTimer)
-            freezeActiveBallsTimer = freezeActiveBallsTimer - 0.005
-            if freezeActiveBallsTimer <= 1:
-                freezeActiveBallsTimer = 0
-                freezeActiveBalls = False
-                
+        ball.bounce()
+        ball.move()
+        ball.update()
+        ball.display()
+
+
 
     for (idx, foodBit) in enumerate(foodGroup):
         if foodBit.expire():
             properties = foodBit.get_properties()
             foodGroup.add(make_food(properties['type'], properties['colour'], properties['size'], properties['effect']))
             foodGroup.remove(foodBit)
-            
 
     screen.fill(BACKGROUND_COLOUR)  # color screen black
     if direction == None:
@@ -285,8 +265,7 @@ while running:
             foodGroup.draw(screen)
             snakeSprite.draw(screen)
             ballGroup.draw(screen)
-            if killerBallSpawned: 
-                screen.blit(killerBall.image, killerBall.rect)
+            screen.blit(killerBall.image, killerBall.rect)
 
 
             pygame.display.update()

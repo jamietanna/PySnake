@@ -7,6 +7,12 @@ import os
 import pygame
 import sys
 
+
+from Config import *
+from Snake_Module import *
+import random
+from random import choice
+
 class Food(pygame.sprite.Sprite):
     # Private Constants
     _DEFAULT_COLOUR = [255, 174, 201] # Pink
@@ -165,3 +171,33 @@ class FoodMysterious(Food):
         super(FoodMysterious, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
         self.properties['autoRespawn'] = False
         print "TODO: FoodCurse expiry"
+
+def make_food(snake, foodType='FoodNormal', colour=None, size=None, effect=None):
+    print "TODO: MAKE make_food(snake, foodType, properties)"
+    #global snake
+
+    if foodType == None:
+        foodType = 'FoodNormal'
+
+    # Keep food within decent boundaries
+    # Use eval in case we're spawning a different foodType of food
+
+
+    foodTypeX = eval(foodType + '._DEFAULT_SIZE[0]')
+    foodTypeY = eval(foodType + '._DEFAULT_SIZE[1]')
+
+    hbound = DEFAULT_SCREEN_SIZE[0] / (foodTypeX - 1)
+    vbound = DEFAULT_SCREEN_SIZE[1] /  (foodTypeY- 1)
+    (X, Y) = (None, None)
+
+    # ### TODO check that food doesn't spawn over another piece of food
+
+    # Make sure the food doesn't spawn over the snakes position
+
+    #### TODO [0,1] -> X,Y
+
+    while snake.occupies_position([X, Y]) == True:
+        X = random.randint(0, hbound) * eval(foodType + '._DEFAULT_SIZE[0]')
+        Y = random.randint(0, vbound) * eval(foodType + '._DEFAULT_SIZE[1]')
+
+    return eval(foodType + '(' + str(colour) + ', ' + str(size) + ', ' + str(effect) + ', ['+str(X)+', '+str(Y)+'])')
