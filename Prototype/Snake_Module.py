@@ -3,9 +3,10 @@
 import pygame
 #import random
 from random import randint
+from Config import *
 
 
-CURSE_TAIL_COLOUR = [0,0,0]#[100,100,100]
+CURSE_TAIL_COLOUR = BACKGROUND_COLOUR
 
 def random_rgb():
     rcolour = randint(50,255)
@@ -22,10 +23,12 @@ class Callable:
 class Snake(pygame.sprite.Sprite):
     # Private constants
     _DEFAULT_COLOUR = [255, 255, 255] # White
-    _DEFAULT_SIZE = [10, 10]
-    _DEFAULT_POSITION = [300, 300] # Any for now
+    _DEFAULT_SIZE = [SNAKE_SIZE, SNAKE_SIZE]
+    _DEFAULT_POSITION = [SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2] # Start in the middle
 
     segments = []
+
+
 
     def get_sections(self):
         G = pygame.sprite.Group()
@@ -36,7 +39,6 @@ class Snake(pygame.sprite.Sprite):
         return G
 
     def get_head(self):
-
         return self.head
 
     #-----PRIVATE CLASSES-------------------------------------------------------
@@ -57,10 +59,10 @@ class Snake(pygame.sprite.Sprite):
 
     class SnakeMove():
         # Valid directions for the snake to move
-        UP = '1Y'
-        DOWN = '-1Y'
-        RIGHT = '1X'
-        LEFT = '-1X'
+        UP      = '1Y'
+        DOWN    = '-1Y'
+        RIGHT   = '1X'
+        LEFT    = '-1X'
 
         # Check direction is valid
         def SnakeMove_is_member(direction):
@@ -100,18 +102,25 @@ class Snake(pygame.sprite.Sprite):
 
         self.curseTail = False
 
+        self.direction = Snake.SnakeMove.UP
 
-        for x in range(1, 5): # Initial Length
+
+        print "TODO: make this use self.adjust_tail_size()"
+
+        for x in range(1, INITIAL_LENGTH): # Initial Length
             tailposition = [(position[0] - x*size[0]), position[1]]
-            #self.tail.add_tail_section(colour, size, tailposition)
-            self.segments.append(Snake._SnakeSegment(colour, size, tailposition))
+            # self.tail.add_tail_section(colour, size, tailposition)
+            self.segments.append(Snake._SnakeSegment(random_rgb(), size, tailposition))
 
 
-    def move(self, direction, frame_width, frame_height):
+
+    def move(self, frame_width, frame_height):
         # New Position
         stepSize = self.head.image.get_rect()[2] # Size of head
         newHeadPos = [self.head.rect.topleft[0], self.head.rect.topleft[1]]
         
+        direction = self.direction
+
         # This allows it to move through walls, will remove when updating next prototype
         if direction == Snake.SnakeMove.RIGHT:
             newHeadPos[0] = (newHeadPos[0]+stepSize)%frame_width
@@ -125,6 +134,7 @@ class Snake(pygame.sprite.Sprite):
         # Check to see if the snake crashes into itself
         if self.occupies_position(newHeadPos):
             return False
+
 
         # Head's old position becomes first section of tail's new position
         newTailSectionPos = self.head.rect.topleft
@@ -158,13 +168,14 @@ class Snake(pygame.sprite.Sprite):
 
         return False
 
-    def adjust_tail_size(self, number, current_direction):
+    def adjust_tail_size(self, number):
         size = self.size[0]
+
+        current_direction = self.direction
 
         if number > 0:
             for count in range(number):
             # ### TODO - randomly generate from the colour of the food eaten
-                
                 if self.curseTail:
                     colour = CURSE_TAIL_COLOUR
                 else:
@@ -174,7 +185,6 @@ class Snake(pygame.sprite.Sprite):
                 lastindex = len(self.segments) - 1
                 X = self.segments[lastindex].rect.topleft[0]
                 Y = self.segments[lastindex].rect.topleft[1]
-                
                 
                 # New tail section position
                 if current_direction == Snake.SnakeMove.RIGHT:
@@ -186,7 +196,6 @@ class Snake(pygame.sprite.Sprite):
                 elif current_direction == Snake.SnakeMove.DOWN:
                     Y = Y + size + (count*size)
 
-                #self.tail.add_tail_section(color, self.size, [X, Y])
                 self.segments.append(Snake._SnakeSegment(colour, self.size, [X, Y]))
         else:
             for count in range(abs(number)):

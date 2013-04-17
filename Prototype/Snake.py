@@ -19,7 +19,8 @@ global userEscape
 
 
 
-
+#### KILLER BALL KILL WHEREVER HITS?
+#### KILLER COLLISIONS
 
 
 G = Game()
@@ -30,6 +31,7 @@ while running:
 
 
 # NOTE: None of the code below this point will run!
+
 
 
 ################ ################ ################ ################ ################ ################ ################ ################ ################ ################ 

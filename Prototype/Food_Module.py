@@ -32,7 +32,7 @@ class Food(pygame.sprite.Sprite):
             effect = dict()
         
         if 'size' not in effect:
-            effect['size']  = 1
+            effect['size']  = 2
         if 'score' not in effect:
             effect['score'] = 1
         if 'curse' not in effect:
@@ -59,7 +59,7 @@ class Food(pygame.sprite.Sprite):
         # about 4 seconds
         #self.time   = 1600000       # non editable for the time being
                                     # -1 = inf
-        self.properties['time']   = -1
+        self.properties['time']   = 4 * FPS #-1
         self.properties['autoRespawn'] = True
         self.properties['type'] = self.__class__.__name__
 
@@ -83,10 +83,7 @@ class Food(pygame.sprite.Sprite):
     def expire(self):
         if self.properties['time'] > 0:
             self.properties['time'] -= 1 # decrement
-            if self.properties['time'] <= 0:
-                return True
-            else:
-                return False
+            return (self.properties['time'] <= 0)
         else:
             # -1 indicates infinite
             return False
@@ -111,10 +108,14 @@ class FoodBlue(Food):
         effect['score'] = 0
         effect['spawnStandard'] = True
         super(FoodBlue, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
+        print "TODO: turn foodBlue into rect"
+
+        # self.rect = pygame.Rect((position), (10, 20))
+        # self.rect.topleft = position
 
 class FoodCurse(Food):
     _DEFAULT_COLOUR = [20, 20, 20] # BACKGROUND_COLOUR
-    _DEFAULT_SIZE   = [30, 30]
+    _DEFAULT_SIZE   = [20, 20]
     def __init__(self, colour, size, effect, position):
         effect = dict()
         effect['curse'] = True
@@ -127,53 +128,56 @@ class FoodCurse(Food):
 class FoodMysterious(Food):
     _DEFAULT_COLOUR = [0, 250, 0] # Green
     _DEFAULT_SIZE   = [10, 10]
+
+    RANDOM_MAX = 20
+
     def __init__(self, colour, size, effect, position):
         effect = dict()
-        x = random.randint(0,20)
+        x = random.randint(0,self.RANDOM_MAX)
 
-        if x <= 5: # 1/4 chance
-            spawnStandard = True
-        else:
-            spawnStandard = False
+        # 50% chance
+        for e in ['removeStandard']:
+            effect[e] = (x <= (self.RANDOM_MAX / 2))
 
-        if x == 20: # 1/20 chance
-            spawnKiller = True
-        else:
-            spawnKiller = False
+        # 1/4 chance
+        for e in ['spawnStandard', 'removeKiller']:
+            effect[e] = (x >= (self.RANDOM_MAX / 4))
 
-        if x >= 10: # 1/2 chance
-            freezeBall = True
-        else: 
-            freezeBall = False 
+        # 1/20 chance
+        for e in ['spawnKiller']:
+            effect[e] = (x == (self.RANDOM_MAX / 20))
 
-        if x >= 15: # 1/4 chance
-            removeKiller = True
-        else: 
-            removeKiller = False
 
-        if x <= 10: # 1/2 chance
-            removeStandard = True
-        else:
-            removeStandard = False
+        effect['freezeBall'] = x
+
+        if (x % 2) == 0:
+            # * 20 can give quite a large amount of freeze time
+            effect['freezeBall'] *= 20
+
+        
+
+
+        
+        effect['score'] = x
+        if (x % 2) == 0:
+            effect['score'] = - effect['score']
+
+        
+
+
 
         # probablity way too high
         # need to be synched together
         # maybe do groupings instead of individual ifs
 
-        effect['spawnStandard'] = spawnStandard
-        effect['spawnKiller'] = spawnKiller
         effect['curse'] = False
         effect['size']  = 0
-        effect['score'] = 0 # make it random?
-        effect['freezeBall'] = freezeBall
-        effect['removeKiller'] = removeKiller
-        effect['removeStandard'] = removeStandard
         super(FoodMysterious, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
         self.properties['autoRespawn'] = False
-        print "TODO: FoodCurse expiry"
+        self.properties['time'] *= 2
+        
 
 def make_food(snake, foodType='FoodNormal', colour=None, size=None, effect=None):
-    print "TODO: MAKE make_food(snake, foodType, properties)"
     #global snake
 
     if foodType == None:
