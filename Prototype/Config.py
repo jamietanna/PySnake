@@ -14,19 +14,29 @@ files = dict()
 for root, dirs, filenames in os.walk(dirToSearch):
 	for f in filenames:
 		fileDetails = os.path.splitext(f)
+
+		# only if we have a valid lvl file
 		if fileDetails[1]  == '.lvl':
 			num += 1
-			files[num] = fileDetails
-			print str(num) + ") " + fileDetails[0]
+			files[num] = dict()
+			settings = {}
+			execfile('levels/'+ f , settings)
 
-#### TODO  ... == None ---> not ...
+			files[num]['settings'] = settings
+			files[num]['fName']    = fileDetails[0]
+			files[num]['fExt']     = fileDetails[1]
 
+			# output nice option
+			print str(num) + ") " + str(settings['level_name']) + " (" + str(settings['difficulty']) + ")"
 
 # http://en.wikibooks.org/wiki/Python_Programming/Input_and_output
 levelNum = None
 while not levelNum:
     try:
         levelNum = int(raw_input('Which level would you like to play? Please enter the number: '))
+        if levelNum <= 0 or levelNum > num:
+        	levelNum = None
+        	raise ValueError
     except ValueError:
         print 'Invalid Number'
 
@@ -34,17 +44,24 @@ print
 
 
 
-settings = {}
-execfile('levels/'+ files[levelNum][0]+'.lvl', settings)
 
-
-
-for val in ['level_name', 'initial_food_num', 'initial_food_blue_num', 'initial_food_mysterious_num', 'initial_ball_num', 'initial_ball_killer_num', 'max_balls', 'ball_speed', 'ball_size', 'fps']:
-	exec(string.upper(val) + ' = settings["'+str(val)+'"]')
+for val in ['difficulty', 'level_name', 'initial_food_num', 'initial_food_blue_num', 'initial_food_mysterious_num', 'initial_food_curse_num', 'initial_ball_num', 'initial_ball_killer_num', 'max_balls', 'ball_speed', 'ball_size', 'fps']:
+	# instead of eval
+	exec(string.upper(val) + ' = files['+str(levelNum)+']["settings"]["'+str(val)+'"]')
 
 
 
 ### Not sure if there's an easier way of doing this unless we make a default file?
+
+if DIFFICULTY == 'Easy':
+	DIFFICULTY_BONUS = 0.5
+elif DIFFICULTY == 'Medium':
+	DIFFICULTY_BONUS = 1
+elif DIFFICULTY == 'Hard':
+	DIFFICULTY_BONUS = 1.5
+
+
+
 
 try:
 	SCREEN_WIDTH
@@ -67,7 +84,7 @@ except NameError:
 else:
 	pass
 
-
+# needed for later, but won't have been already set
 screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE)
 
 
@@ -104,6 +121,14 @@ try:
 	INITIAL_FOOD_MYSTERIOUS_NUM
 except NameError:
 	INITIAL_FOOD_MYSTERIOUS_NUM = 10
+else:
+	pass
+
+
+try:
+	INITIAL_FOOD_CURSE_NUM
+except NameError:
+	INITIAL_FOOD_CURSE_NUM = 10
 else:
 	pass
 

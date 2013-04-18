@@ -1,9 +1,11 @@
 level_name = "Level One"
+difficulty = "Easy"
 
 # Food
 initial_food_num = 2
 initial_food_blue_num = 1
 initial_food_mysterious_num = 0
+initial_food_curse_num = 2
 
 # Balls
 initial_ball_num = 2

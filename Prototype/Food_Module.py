@@ -154,9 +154,6 @@ class FoodMysterious(Food):
             effect['score'] = - (effect['score'] / 2)
 
         
-
-
-
         # probablity way too high
         # need to be synched together
         # maybe do groupings instead of individual ifs

@@ -84,6 +84,10 @@ class Game():
         for n in range(INITIAL_FOOD_MYSTERIOUS_NUM):
             self.foodGroup.add(make_food(self.snake, 'FoodMysterious'))
 
+        for n in range(INITIAL_FOOD_CURSE_NUM):
+            self.foodGroup.add(make_food(self.snake, 'FoodCurse'))
+
+
         print "TODO: random food generation i.e. curse/mysterious i.e. if time() % 123 == 0"
 
 
@@ -95,7 +99,8 @@ class Game():
             self.ballGroup.add(BallStandard(generateXY()))
 
         self.ballKillerGroup = pygame.sprite.Group()
-
+        if INITIAL_BALL_KILLER_NUM != 0:
+            self.ballKillerGroup.add(BallKiller(generateXY()))            
 
     def update(self):
         # handle all updates - ALL CODE BELOW:
@@ -218,8 +223,8 @@ class Game():
                     self.ballKillerGroup.add( BallKiller(generateXY()))
 
             if properties['effect']['spawnStandard']:
-                # need to add counting mechanism so balls aren't spawned every time
-                self.ballGroup.add(BallStandard(generateXY()))
+                if len(self.ballGroup) + 1 < MAX_BALLS:
+                    self.ballGroup.add(BallStandard(generateXY()))
                     # ##################
 
             if properties['effect']['freezeBall'] > 0:
@@ -228,10 +233,11 @@ class Game():
                 # then no hard coded values, works based on the FPS *not* faster/slower hardware values
                 self.freezeActiveBallsTimer += FPS * properties['effect']['freezeBall']
                 print self.freezeActiveBallsTimer
-                    ## snake.adjust_tail_size()
-
+                
             if properties['effect']['removeStandard']:
                 print "Removed ball"
+                # bad way of removing the first element 
+
                 for b in self.ballGroup:
                     self.ballGroup.remove(b)
                     break
@@ -244,7 +250,7 @@ class Game():
             self.snake.adjust_tail_size(properties['effect']['size'])
 
             _S = (float) ((properties['effect']['score'] * properties['time']))
-            self.gameScore += int(round(_S / FPS))
+            self.gameScore += int((round(_S / FPS)) * DIFFICULTY_BONUS)
 
 
             self.setWindowTitle(str(self.gameScore))
