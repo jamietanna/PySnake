@@ -18,7 +18,7 @@ INITIAL_FOOD_MYSTERIOUS_NUM = 10
 
 INITIAL_BALL_NUM = 2
 PAGE_TITLE = 'PySnake - [Level Name]'
-FPS = 25
+FPS = 20
 
 BACKGROUND = pygame.Surface(screen.get_size())
 BACKGROUND = BACKGROUND.convert()
