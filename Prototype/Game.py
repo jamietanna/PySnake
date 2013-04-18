@@ -160,25 +160,27 @@ class Game():
 
     def handleUpdates(self):
         # much better method of drawing them all - handled by the SpriteGroup
-        
-        for group in [self.foodGroup, self.snakeSections, self.ballGroup, self.ballKillerGroup]:
-            
-            # always clear in case we removed it this update()
-            # clear any used areas from the last iteration, replacing them with the background
-            group.clear(screen, BACKGROUND)
-
-            # only draw if they've got anything in them!
-            if len(group) > 0:
-                group.draw(screen)
+      
+        screen.fill(BACKGROUND_COLOUR)
 
         for ballGroup in [self.ballGroup, self.ballKillerGroup]:
             if len(ballGroup) > 0:
                 for ball in ballGroup:
+                    ball.display()
                     if self.freezeActiveBallsTimer == 0:
                         ball.bounce()
                         ball.move()
-                    ball.display()
                     
+        for group in [self.foodGroup, self.snakeSections, self.ballGroup, self.ballKillerGroup]:
+            
+            # always clear in case we removed it this update()
+            # clear any used areas from the last iteration, replacing them with the background
+            #### NOT WORKING
+            # group.clear(screen, BACKGROUND)
+
+            # only draw if they've got anything in them!
+            if len(group) > 0:
+                group.draw(screen)
 
 
         pygame.display.update()
@@ -266,6 +268,14 @@ class Game():
                     properties = collisionsFoodKiller[0].get_properties()
                     if properties['autoRespawn']:
                         self.foodGroup.add(make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
+            
+            # don't remove balls, just bounce
+            collisionsBallsKiller = pygame.sprite.spritecollide(ballKiller, self.ballGroup, False)    
+
+            if collisionsBallsKiller:
+                for b in collisionsBallsKiller:
+                    b.collision(ballKiller)
+            
 
         # handle this more quickly
         allBalls = pygame.sprite.Group()
