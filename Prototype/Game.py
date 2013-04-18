@@ -160,9 +160,9 @@ class Game():
 
     def handleUpdates(self):
         # much better method of drawing them all - handled by the SpriteGroup
-      
+      ##################################################################################################################
         screen.fill(BACKGROUND_COLOUR)
-
+########################################################################################################################################################
         for ballGroup in [self.ballGroup, self.ballKillerGroup]:
             if len(ballGroup) > 0:
                 for ball in ballGroup:
@@ -243,8 +243,10 @@ class Game():
 
             self.snake.adjust_tail_size(properties['effect']['size'])
 
-                #snake.lengthen_tail(1, direction)
-            self.gameScore += properties['effect']['score']
+            _S = (float) ((properties['effect']['score'] * properties['time']))
+            self.gameScore += int(round(_S / FPS))
+
+
             self.setWindowTitle(str(self.gameScore))
 
                 # update these so we can then redraw them later - only update once we've got a larger snake, otherwise we're wasting CPU!

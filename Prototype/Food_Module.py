@@ -51,15 +51,11 @@ class Food(pygame.sprite.Sprite):
 
         self.properties = dict()
 
-
         # Initalize
         self.properties['colour'] = colour
         self.properties['size']   = size
-        self.properties['effect']= effect
-        # about 4 seconds
-        #self.time   = 1600000       # non editable for the time being
-                                    # -1 = inf
-        self.properties['time']   = 4 * FPS #-1
+        self.properties['effect'] = effect
+        self.properties['time']   = 4 * FPS # -1 = infinite
         self.properties['autoRespawn'] = True
         self.properties['type'] = self.__class__.__name__
 
@@ -94,8 +90,8 @@ class FoodNormal(Food):
     _DEFAULT_SIZE = [10, 10]
     def __init__(self, colour, size, effect, position):
         effect = dict()
-        effect['score']  = 1
-        effect['size']   = 2
+        effect['score']  = +1
+        effect['size']   = +2
         effect['spawnKiller'] = True
         super(FoodNormal, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
 
@@ -104,8 +100,8 @@ class FoodBlue(Food):
     _DEFAULT_SIZE   = [15, 15]
     def __init__(self, colour, size, effect, position):
         effect = dict()
-        effect['size']  = 2
-        effect['score'] = 0
+        effect['size']  = +3
+        effect['score'] = +0
         effect['spawnStandard'] = True
         super(FoodBlue, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
         print "TODO: turn foodBlue into rect"
@@ -119,10 +115,11 @@ class FoodCurse(Food):
     def __init__(self, colour, size, effect, position):
         effect = dict()
         effect['curse'] = True
-        effect['size']  = 2
+        effect['size']  = +2
         effect['score'] = -5
         super(FoodCurse, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
         self.properties['autoRespawn'] = False
+        self.properties['time'] = -1
         print "TODO: FoodCurse expiry"
 
 class FoodMysterious(Food):
@@ -147,20 +144,14 @@ class FoodMysterious(Food):
         for e in ['spawnKiller']:
             effect[e] = (x == (self.RANDOM_MAX / 20))
 
-
-        effect['freezeBall'] = x
-
         if (x % 2) == 0:
             # * 20 can give quite a large amount of freeze time
-            effect['freezeBall'] *= 20
-
-        
+            effect['freezeBall'] = x * 20
 
 
-        
-        effect['score'] = x
+        effect['score'] = x / 2
         if (x % 2) == 0:
-            effect['score'] = - effect['score']
+            effect['score'] = - (effect['score'] / 2)
 
         
 

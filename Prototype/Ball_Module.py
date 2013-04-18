@@ -99,6 +99,6 @@ class BallKiller(Ball):
 
     def __init__(self, (x, y)):
         super(BallKiller, self).__init__((x,y))
-
+        self.speed = BALL_SPEED * 1.5
     # dont need collision function for killer
         
