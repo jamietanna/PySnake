@@ -1,24 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import pygame
 #import random
 from random import randint
 from Config import *
+from HelperFunctions import *
 
-
-CURSE_TAIL_COLOUR = BACKGROUND_COLOUR
-
-def random_rgb():
-    rcolour = randint(50,255)
-    bcolour = randint(50,255)
-    gcolour = randint(50,255)
-    return [rcolour, bcolour, gcolour]
-
-
-# Static function
-class Callable:
-    def __init__(self, anycallable):
-        self.__call__ = anycallable
 
 class Snake(pygame.sprite.Sprite):
     # Private constants
@@ -100,7 +88,7 @@ class Snake(pygame.sprite.Sprite):
         self.head = self.segments[0]
         #self.tail = Snake._SnakeTail()
 
-        self.curseTail = False
+        self.curseTail = 0
 
         self.direction = Snake.SnakeMove.UP
 
@@ -115,6 +103,7 @@ class Snake(pygame.sprite.Sprite):
 
 
     def move(self, frame_width, frame_height):
+
         # New Position
         stepSize = self.head.image.get_rect()[2] # Size of head
         newHeadPos = [self.head.rect.topleft[0], self.head.rect.topleft[1]]
@@ -176,8 +165,8 @@ class Snake(pygame.sprite.Sprite):
         if number > 0:
             for count in range(number):
             # ### TODO - randomly generate from the colour of the food eaten
-                if self.curseTail:
-                    colour = CURSE_TAIL_COLOUR
+                if self.curseTail > 0:
+                    colour = BACKGROUND_COLOUR
                 else:
                     colour = random_rgb()
                 # Randomise colour of new tail section
@@ -199,21 +188,23 @@ class Snake(pygame.sprite.Sprite):
                 self.segments.append(Snake._SnakeSegment(colour, self.size, [X, Y]))
         else:
             for count in range(abs(number)):
-                print len(self.segments)
-                print self.segments
+                # leave at least the head
                 if(len(self.segments) > 1):
                     del self.segments[-1]
-                ### TODO if length 0 then die?
     
-    def curse_tail(self,enable=True):
-        self.curseTail = enable
+    def randomize_snake_colour(self):
+        for s in self.segments:
+            s.set_colour(random_rgb())
 
+
+    def curse_tail(self):
+
+        self.randomize_snake_colour()
+        
+        
+        self.curseTail = FOOD_CURSE_TIME_TO_WEAR_OFF * FPS
         for (idx, s) in enumerate(self.segments):
-            # show the head
             if idx > 0:
-                if self.curseTail:
-                    s.set_colour(CURSE_TAIL_COLOUR)
-                else:
-                    s.set_colour(random_rgb())
+                s.set_colour(BACKGROUND_COLOUR)
             else:
                 s.set_colour(random_rgb())

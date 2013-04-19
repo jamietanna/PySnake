@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import pygame
 import string
 import os
@@ -44,8 +47,9 @@ print
 
 
 
+# easier way to grab them all, much easier than the horrible try/except or hard coded ifs
 
-for val in ['difficulty', 'level_name', 'initial_food_num', 'initial_food_blue_num', 'initial_food_mysterious_num', 'initial_food_curse_num', 'initial_ball_num', 'initial_ball_killer_num', 'max_balls', 'ball_speed', 'ball_size', 'fps']:
+for val in ['difficulty', 'level_name', 'initial_food_num', 'initial_food_super_num', 'initial_food_mysterious_num', 'initial_food_curse_num', 'initial_ball_num', 'initial_ball_killer_num', 'max_balls', 'ball_speed', 'ball_size', 'fps']:
 	# instead of eval
 	exec(string.upper(val) + ' = files['+str(levelNum)+']["settings"]["'+str(val)+'"]')
 
@@ -111,9 +115,9 @@ else:
 	pass
 
 try:
-	INITIAL_FOOD_BLUE_NUM
+	INITIAL_FOOD_SUPER_NUM
 except NameError:
-	INITIAL_FOOD_BLUE_NUM = 1
+	INITIAL_FOOD_SUPER_NUM = 1
 else:
 	pass
 
@@ -161,22 +165,8 @@ try:
 	BACKGROUND
 except NameError:
 	BACKGROUND = pygame.Surface(screen.get_size())
-else:
-	pass
-
-
-try:
-	BACKGROUND
-except NameError:
 	BACKGROUND = BACKGROUND.convert()
-else:
-	pass
-
-
-try:
-	BACKGROUND
-except NameError:
-		BACKGROUND.fill(BACKGROUND_COLOUR)
+	BACKGROUND.fill(BACKGROUND_COLOUR)
 else:
 	pass
 
@@ -201,6 +191,29 @@ try:
 	BALL_SIZE
 except NameError:
 	BALL_SIZE = 10
+else:
+	pass
+
+try:
+	RANDOM_FOOD_MYSTERIOUS_CHANCE
+except NameError:
+	RANDOM_FOOD_MYSTERIOUS_CHANCE = 123
+else:
+	pass
+
+
+try:
+	RANDOM_FOOD_CURSE_CHANCE
+except NameError:
+	RANDOM_FOOD_CURSE_CHANCE = 127
+else:
+	pass
+
+
+try:
+	FOOD_CURSE_TIME_TO_WEAR_OFF
+except NameError:
+	FOOD_CURSE_TIME_TO_WEAR_OFF = 600
 else:
 	pass
 

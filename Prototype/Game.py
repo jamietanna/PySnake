@@ -1,7 +1,8 @@
-print "BEFORE REMOVE, CLEAR!"
+# print "BEFORE REMOVE, CLEAR!"
 print "SORT killerFromGroup()"
-print "TODO: FoodCurse expiry"
 print "TODO: MAKE make_food(snake, foodType, properties)"
+print "TODO: rules!!!"
+print "TODO: replay?"
         
 import pygame
 from pygame import *
@@ -78,8 +79,8 @@ class Game():
         for n in range(INITIAL_FOOD_NUM):
             self.foodGroup.add(make_food(self.snake))
 
-        for n in range(INITIAL_FOOD_BLUE_NUM):
-            self.foodGroup.add(make_food(self.snake,'FoodBlue'))
+        for n in range(INITIAL_FOOD_SUPER_NUM):
+            self.foodGroup.add(make_food(self.snake,'FoodSuper'))
 
         for n in range(INITIAL_FOOD_MYSTERIOUS_NUM):
             self.foodGroup.add(make_food(self.snake, 'FoodMysterious'))
@@ -106,10 +107,11 @@ class Game():
         # handle all updates - ALL CODE BELOW:
         self.clock.tick(FPS)
 
+
         self.handleKeyPress()
         self.handleCollisions()
         self.handleExpiry()
-        
+        self.handleRandoms()
         
         ### ---------------- NEEDS TO BE SORTED OUT --------------
         # while >=0 aka not active
@@ -165,9 +167,9 @@ class Game():
 
     def handleUpdates(self):
         # much better method of drawing them all - handled by the SpriteGroup
-      ##################################################################################################################
+        # unfortunately, we need to keep this in - using group.clear() gives some sprites black backgrounds and it looks terrible
         screen.fill(BACKGROUND_COLOUR)
-########################################################################################################################################################
+
         for ballGroup in [self.ballGroup, self.ballKillerGroup]:
             if len(ballGroup) > 0:
                 for ball in ballGroup:
@@ -178,9 +180,7 @@ class Game():
                     
         for group in [self.foodGroup, self.snakeSections, self.ballGroup, self.ballKillerGroup]:
             
-            # always clear in case we removed it this update()
-            # clear any used areas from the last iteration, replacing them with the background
-            #### NOT WORKING
+            # see note above re screen.fill()
             # group.clear(screen, BACKGROUND)
 
             # only draw if they've got anything in them!
@@ -192,9 +192,6 @@ class Game():
 
 
     def handleCollisions(self):
-        # bubble search style collision check?
-        
-
         snakeHead = self.snake.get_head()
 
         #### FOOD
@@ -214,10 +211,11 @@ class Game():
                 self.foodGroup.add(make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
 
             if properties['effect']['curse'] == True:
-                self.snake.curse_tail(True)
+                self.snake.curse_tail()
 
             if properties['effect']['spawnKiller']:
-                if self.ballKillerSpawned() == False:
+                # 20% chance
+                if self.ballKillerSpawned() == False and (pygame.time.get_ticks() % 5 == 0):
                 # need a function to generate generic safe spawn
                 # maybe make the stimulus for a killer ball to be spawned more complicated 
                     self.ballKillerGroup.add( BallKiller(generateXY()))
@@ -225,14 +223,12 @@ class Game():
             if properties['effect']['spawnStandard']:
                 if len(self.ballGroup) + 1 < MAX_BALLS:
                     self.ballGroup.add(BallStandard(generateXY()))
-                    # ##################
 
             if properties['effect']['freezeBall'] > 0:
-                print "Balls Frozen"
+                print "Balls Frozen for " + str(self.freezeActiveBallsTimer) 
                 self.freezeActiveBalls = True
                 # then no hard coded values, works based on the FPS *not* faster/slower hardware values
                 self.freezeActiveBallsTimer += FPS * properties['effect']['freezeBall']
-                print self.freezeActiveBallsTimer
                 
             if properties['effect']['removeStandard']:
                 print "Removed ball"
@@ -296,7 +292,21 @@ class Game():
             if collisionsBall:
                 self.gameOver = True
 
+
+    def handleRandoms(self):
+        time = pygame.time.get_ticks()
+
+        if ((time % RANDOM_FOOD_MYSTERIOUS_CHANCE) == 0):
+            print "Random Melon of Mystery generated"
+            self.foodGroup.add(FoodMysterious(None, None, None, generateXY()))
+        
+        if ((time % RANDOM_FOOD_CURSE_CHANCE) == 0):
+            print "Random Berries of Bane generated"
+            self.foodGroup.add(FoodCurse(None, None, None, generateXY()))
+
+
     def handleExpiry(self):
+        
         for foodBit in self.foodGroup:
             if foodBit.expire():
                 properties = foodBit.get_properties()
@@ -305,6 +315,18 @@ class Game():
                 if properties['autoRespawn']:
                     self.foodGroup.add(make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
                 self.foodGroup.remove(foodBit)
+
+        # update the curse tail timer
+        if self.snake.curseTail > 0:
+            self.snake.curseTail -= FPS
+    
+            # put this in here, otherwise it'll run every time :. random colours constantly
+            if self.snake.curseTail <= 0:
+                self.snake.curseTail = 0
+                self.snake.randomize_snake_colour()
+                
+
+        
 
     def exitGame(self):
         print 'Final score was ' + str(self.gameScore)

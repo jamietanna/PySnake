@@ -3,7 +3,7 @@ difficulty = "Hard"
 
 # Food
 initial_food_num = 1
-initial_food_blue_num = 2
+initial_food_super_num = 2
 initial_food_mysterious_num = 2
 initial_food_curse_num = 2
 

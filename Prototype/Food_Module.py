@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import pygame
 import random
 import math
@@ -59,21 +60,20 @@ class Food(pygame.sprite.Sprite):
         self.properties['autoRespawn'] = True
         self.properties['type'] = self.__class__.__name__
 
-        self.image = pygame.Surface(size)
-        self.image.fill(colour)
+        if self.FILENAME != None:
+            path = os.path.join(os.getcwd(), self.FILENAME)
+            self.image = pygame.image.load(path)
+            # resize it so it's better
+            self.image = pygame.transform.scale(self.image, size)
+        else:
+            self.image = pygame.Surface(size)
+            self.image.fill(colour)
+
         self.rect = self.image.get_rect()
         self.rect.topleft = position
+        
 
     def get_properties(self):
-        # prop = dict()
-        # prop['colour']  = self.colour
-        # prop['size']    = self.size
-        # prop['type']    = self.__class__.__name__
-        # prop['effect']  = dict()
-        # ### TODO : MAKE ATTRIBUTE
-        # prop['effect']  = self.effect
-
-        # return prop
         return self.properties
 
     def expire(self):
@@ -87,32 +87,49 @@ class Food(pygame.sprite.Sprite):
 
 class FoodNormal(Food):
     _DEFAULT_COLOUR = [255, 0, 0] # Red
-    _DEFAULT_SIZE = [10, 10]
+    _DEFAULT_SIZE = [15, 15]
+    
+    FILENAME = 'food_5.png'
+    
     def __init__(self, colour, size, effect, position):
+        
+        """BASE BANANAS"""
+        
         effect = dict()
-        effect['score']  = +1
+        effect['score']  = +2
         effect['size']   = +2
-        effect['spawnKiller'] = True
+        effect['spawnStandard'] = True
         super(FoodNormal, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
 
-class FoodBlue(Food):
+class FoodSuper(Food):
     _DEFAULT_COLOUR = [0, 0, 255] # Dark blue
-    _DEFAULT_SIZE   = [15, 15]
+    _DEFAULT_SIZE   = [20, 20]
+    
+    FILENAME = 'lemon.png'
+    
     def __init__(self, colour, size, effect, position):
+        
+        """LEMON OF LENGTH"""
+        
         effect = dict()
         effect['size']  = +3
-        effect['score'] = +0
-        effect['spawnStandard'] = True
-        super(FoodBlue, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
-        print "TODO: turn foodBlue into rect"
+        effect['score'] = +5
+        effect['spawnKiller'] = True
+        super(FoodSuper, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
 
         # self.rect = pygame.Rect((position), (10, 20))
         # self.rect.topleft = position
 
 class FoodCurse(Food):
-    _DEFAULT_COLOUR = [20, 20, 20] # BACKGROUND_COLOUR
+    _DEFAULT_COLOUR = BACKGROUND_COLOUR
     _DEFAULT_SIZE   = [20, 20]
+    
+    FILENAME = 'food_4.png'
+
     def __init__(self, colour, size, effect, position):
+        
+        """BERRIES OF BANE"""
+
         effect = dict()
         effect['curse'] = True
         effect['size']  = +2
@@ -120,15 +137,19 @@ class FoodCurse(Food):
         super(FoodCurse, self).__init__(self._DEFAULT_COLOUR, self._DEFAULT_SIZE, effect, position)
         self.properties['autoRespawn'] = False
         self.properties['time'] = -1
-        print "TODO: FoodCurse expiry"
 
 class FoodMysterious(Food):
     _DEFAULT_COLOUR = [0, 250, 0] # Green
-    _DEFAULT_SIZE   = [10, 10]
+    _DEFAULT_SIZE   = [15, 15]
 
     RANDOM_MAX = 20
 
+    FILENAME = 'food_1.png'
+    
     def __init__(self, colour, size, effect, position):
+        
+        """MYSTERY MELON"""
+
         effect = dict()
         x = random.randint(0,self.RANDOM_MAX)
 

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import random
 import math
 import os
@@ -24,15 +25,14 @@ class Ball(pygame.sprite.Sprite):
     def __init__(self, (x, y)):
         pygame.sprite.Sprite.__init__(self)
     
-       ### TESTING HACK FOR EASE OF USE
+        # ### TESTING HACK FOR EASE OF USE
 
-        if os.name == 'nt':
-            path = os.path.join('C:\\','Users','Mart','Documents','FSE','Prototype', self.FILENAME)
-        else:
-            path = os.path.join(os.getcwd(), self.FILENAME)
+        #  if os.name == 'nt':
+        #      path = os.path.join('C:\\','Users','Mart','Documents','FSE','Prototype', self.FILENAME)
+        #  else:
+        path = os.path.join(os.getcwd(), self.FILENAME)
         
         self.image = pygame.image.load(path)
-        #self.image = pygame.image.load(os.path.join(os.getcwd(), "ball.png"))
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
@@ -73,13 +73,12 @@ class BallStandard(Ball):
     def __init__(self, (x, y)):
         super(BallStandard, self).__init__((x,y))
 
+    # used for collisions with a killer ball
     def collision(self, ball):
         (dx,dy) = (self.x - ball.x, self.y - ball.y) 
         contact = math.hypot(dx, dy)
         if contact < self.size + ball.size:
-            ### Is there a way to cut this down?
-            # its as tidy as it can get really now :(
-            
+    
             tangent = math.atan2(dy, dx)
             collision_angle = 0.5 * math.pi + tangent
             
@@ -100,5 +99,3 @@ class BallKiller(Ball):
     def __init__(self, (x, y)):
         super(BallKiller, self).__init__((x,y))
         self.speed = BALL_SPEED * 1.5
-    # dont need collision function for killer
-        
