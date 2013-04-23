@@ -5,13 +5,12 @@ print "TODO: rules!!!"
 print "TODO: replay?"
 
 import pygame
-from pygame import *
-from Food_Module import *
-from Snake_Module import *
-from Ball_Module import *
+import Food_Module
+import Snake_Module
+import Ball_Module
 # from Config import *
+import Config
 import random
-from random import choice
 # from Game import *
 
 def killerFromGroup(ballGroup):
@@ -23,8 +22,8 @@ def killerFromGroup(ballGroup):
     return None
 
 def generateXY():
-    posx = randint(0, DEFAULT_SCREEN_SIZE[0])
-    posy = randint(0, DEFAULT_SCREEN_SIZE[1])
+    posx = random.randint(0, Config.DEFAULT_SCREEN_SIZE[0])
+    posy = random.randint(0, Config.DEFAULT_SCREEN_SIZE[1])
 
     return (posx, posy)
             
@@ -49,9 +48,8 @@ class Game():
 
         ### --------- initialise pygame and set up the window
         pygame.init()
-
-        display.set_caption(PAGE_TITLE)
-        screen.fill(BACKGROUND_COLOUR)
+        pygame.display.set_caption(Config.PAGE_TITLE)
+        Config.screen.fill(Config.BACKGROUND_COLOUR)
 
 
         self.gameScore = 0
@@ -65,7 +63,7 @@ class Game():
 
         ### --------- Generate the snake
 
-        self.snake = Snake()
+        self.snake = Snake_Module.Snake()
 
         self.snakeSprite = pygame.sprite.Group()
         self.snakeSprite.add(self.snake.get_sections())
@@ -81,17 +79,17 @@ class Game():
 
         self.foodGroup  = pygame.sprite.Group()
         # config['food']['standard']['initial']
-        for n in range(INITIAL_FOOD_NUM):
-            self.foodGroup.add(make_food(self.snake))
+        for n in range(Config.INITIAL_FOOD_NUM):
+            self.foodGroup.add(Food_Module.make_food(self.snake))
 
-        for n in range(INITIAL_FOOD_SUPER_NUM):
-            self.foodGroup.add(make_food(self.snake,'FoodSuper'))
+        for n in range(Config.INITIAL_FOOD_SUPER_NUM):
+            self.foodGroup.add(Food_Module.make_food(self.snake,'FoodSuper'))
 
-        for n in range(INITIAL_FOOD_MYSTERIOUS_NUM):
-            self.foodGroup.add(make_food(self.snake, 'FoodMysterious'))
+        for n in range(Config.INITIAL_FOOD_MYSTERIOUS_NUM):
+            self.foodGroup.add(Food_Module.make_food(self.snake, 'FoodMysterious'))
 
-        for n in range(INITIAL_FOOD_CURSE_NUM):
-            self.foodGroup.add(make_food(self.snake, 'FoodCurse'))
+        for n in range(Config.INITIAL_FOOD_CURSE_NUM):
+            self.foodGroup.add(Food_Module.make_food(self.snake, 'FoodCurse'))
 
 
         print "TODO: random food generation i.e. curse/mysterious i.e. if time() % 123 == 0"
@@ -101,16 +99,16 @@ class Game():
 
         self.ballGroup  = pygame.sprite.Group()
 
-        for n in range(INITIAL_BALL_NUM):
-            self.ballGroup.add(BallStandard(generateXY()))
+        for n in range(Config.INITIAL_BALL_NUM):
+            self.ballGroup.add(Ball_Module.BallStandard(generateXY()))
 
         self.ballKillerGroup = pygame.sprite.Group()
-        if INITIAL_BALL_KILLER_NUM != 0:
-            self.ballKillerGroup.add(BallKiller(generateXY()))            
+        if Config.INITIAL_BALL_KILLER_NUM != 0:
+            self.ballKillerGroup.add(Ball_Module.BallKiller(generateXY()))            
 
     def update(self):
         # handle all updates - ALL CODE BELOW:
-        self.clock.tick(FPS)
+        self.clock.tick(Config.FPS)
 
 
         self.handleKeyPress()
@@ -123,11 +121,11 @@ class Game():
     
         
         if self.freezeActiveBallsTimer > 0:
-            self.freezeActiveBallsTimer -= FPS
+            self.freezeActiveBallsTimer -= Config.FPS
 
         if self.gameOver == False:
-            movement = self.snake.move(DEFAULT_SCREEN_SIZE[0],
-                                  DEFAULT_SCREEN_SIZE[1])
+            movement = self.snake.move(Config.DEFAULT_SCREEN_SIZE[0],
+                                  Config.DEFAULT_SCREEN_SIZE[1])
             if movement != False:
                 self.handleUpdates()
             else:
@@ -144,22 +142,22 @@ class Game():
 
         direction = self.snake.direction
 
-        for keyPress in event.get():
-            if keyPress.type == KEYDOWN:
-                if keyPress.key == K_ESCAPE or keyPress.key == K_q:
+        for keyPress in pygame.event.get():
+            if keyPress.type == pygame.KEYDOWN:
+                if keyPress.key == pygame.K_ESCAPE or keyPress.key == pygame.K_q:
                     self.userEscape = True
-                elif keyPress.key == K_UP:
-                    if direction != Snake.SnakeMove.DOWN:
-                        direction = Snake.SnakeMove.UP
-                elif keyPress.key == K_DOWN:
-                    if direction != Snake.SnakeMove.UP:
-                        direction = Snake.SnakeMove.DOWN
-                elif keyPress.key == K_RIGHT:
-                    if direction != Snake.SnakeMove.LEFT:
-                        direction = Snake.SnakeMove.RIGHT
-                elif keyPress.key == K_LEFT:
-                    if direction != Snake.SnakeMove.RIGHT:
-                        direction = Snake.SnakeMove.LEFT
+                elif keyPress.key == pygame.K_UP:
+                    if direction != Snake_Module.Snake.SnakeMove.DOWN:
+                        direction = Snake_Module.Snake.SnakeMove.UP
+                elif keyPress.key == pygame.K_DOWN:
+                    if direction != Snake_Module.Snake.SnakeMove.UP:
+                        direction = Snake_Module.Snake.SnakeMove.DOWN
+                elif keyPress.key == pygame.K_RIGHT:
+                    if direction != Snake_Module.Snake.SnakeMove.LEFT:
+                        direction = Snake_Module.Snake.SnakeMove.RIGHT
+                elif keyPress.key == pygame.K_LEFT:
+                    if direction != Snake_Module.Snake.SnakeMove.RIGHT:
+                        direction = Snake_Module.Snake.SnakeMove.LEFT
 
 
                 self.snake.direction = direction 
@@ -173,7 +171,7 @@ class Game():
     def handleUpdates(self):
         # much better method of drawing them all - handled by the SpriteGroup
         # unfortunately, we need to keep this in - using group.clear() gives some sprites black backgrounds and it looks terrible
-        screen.fill(BACKGROUND_COLOUR)
+        Config.screen.fill(Config.BACKGROUND_COLOUR)
 
         for ballGroup in [self.ballGroup, self.ballKillerGroup]:
             if len(ballGroup) > 0:
@@ -190,7 +188,7 @@ class Game():
 
             # only draw if they've got anything in them!
             if len(group) > 0:
-                group.draw(screen)
+                group.draw(Config.screen)
 
 
         pygame.display.update()
@@ -213,7 +211,7 @@ class Game():
             properties = collisionsFood[0].get_properties()
 
             if properties['autoRespawn']:
-                self.foodGroup.add(make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
+                self.foodGroup.add(Food_Module.make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
 
             if properties['effect']['curse'] == True:
                 self.snake.curse_tail()
@@ -223,17 +221,18 @@ class Game():
                 if self.ballKillerSpawned() == False and (pygame.time.get_ticks() % 5 == 0):
                 # need a function to generate generic safe spawn
                 # maybe make the stimulus for a killer ball to be spawned more complicated 
-                    self.ballKillerGroup.add( BallKiller(generateXY()))
+                    self.ballKillerGroup.add(Ball_Module.BallKiller(generateXY()))
 
             if properties['effect']['spawnStandard']:
-                if len(self.ballGroup) + 1 < MAX_BALLS:
-                    self.ballGroup.add(BallStandard(generateXY()))
+                if len(self.ballGroup) + 1 < Config.MAX_BALLS:
+                    self.ballGroup.add(Ball_Module.BallStandard(generateXY()))
 
             if properties['effect']['freezeBall'] > 0:
-                print "Balls Frozen for " + str(self.freezeActiveBallsTimer) 
-                self.freezeActiveBalls = True
                 # then no hard coded values, works based on the FPS *not* faster/slower hardware values
-                self.freezeActiveBallsTimer += FPS * properties['effect']['freezeBall']
+                self.freezeActiveBallsTimer += Config.FPS * properties['effect']['freezeBall']
+
+                print "Balls Frozen for " + str(self.freezeActiveBallsTimer)
+                
                 
             if properties['effect']['removeStandard']:
                 print "Removed ball"
@@ -251,7 +250,7 @@ class Game():
             self.snake.adjust_tail_size(properties['effect']['size'])
 
             _S = (float) ((properties['effect']['score'] * properties['time']))
-            self.gameScore += int((round(_S / FPS)) * DIFFICULTY_BONUS)
+            self.gameScore += int((round(_S / Config.FPS)) * Config.DIFFICULTY_BONUS)
 
 
             self.setWindowTitle(str(self.gameScore))
@@ -276,7 +275,7 @@ class Game():
                 for f in collisionsFoodKiller:
                     properties = collisionsFoodKiller[0].get_properties()
                     if properties['autoRespawn']:
-                        self.foodGroup.add(make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
+                        self.foodGroup.add(Food_Module.make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
             
             # don't remove balls, just bounce
             collisionsBallsKiller = pygame.sprite.spritecollide(ballKiller, self.ballGroup, False)    
@@ -301,13 +300,13 @@ class Game():
     def handleRandoms(self):
         time = pygame.time.get_ticks()
 
-        if ((time % RANDOM_FOOD_MYSTERIOUS_CHANCE) == 0):
+        if ((time % Config.RANDOM_FOOD_MYSTERIOUS_CHANCE) == 0):
             print "Random Melon of Mystery generated"
-            self.foodGroup.add(FoodMysterious(None, None, None, generateXY()))
+            self.foodGroup.add(Food_Module.FoodMysterious(None, None, None, generateXY()))
         
-        if ((time % RANDOM_FOOD_CURSE_CHANCE) == 0):
+        if ((time % Config.RANDOM_FOOD_CURSE_CHANCE) == 0):
             print "Random Berries of Bane generated"
-            self.foodGroup.add(FoodCurse(None, None, None, generateXY()))
+            self.foodGroup.add(Food_Module.FoodCurse(None, None, None, generateXY()))
 
 
     def handleExpiry(self):
@@ -318,12 +317,12 @@ class Game():
                 ### OR just refresh the food element?
                 ### TODO food.refresh() / food.respawn()
                 if properties['autoRespawn']:
-                    self.foodGroup.add(make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
+                    self.foodGroup.add(Food_Module.make_food(self.snake, properties['type'], properties['colour'], properties['size'], properties['effect']))
                 self.foodGroup.remove(foodBit)
 
         # update the curse tail timer
         if self.snake.curseTail > 0:
-            self.snake.curseTail -= FPS
+            self.snake.curseTail -= Config.FPS
     
             # put this in here, otherwise it'll run every time :. random colours constantly
             if self.snake.curseTail <= 0:
@@ -341,9 +340,9 @@ class Game():
 
     def setWindowTitle(self,str=None):
         if str == None:
-            display.set_caption(PAGE_TITLE)
+            pygame.display.set_caption(Config.PAGE_TITLE)
         else:
-            display.set_caption(PAGE_TITLE + ' - ' + str)
+            pygame.display.set_caption(Config.PAGE_TITLE + ' - ' + str)
 
 class Level():
     pass

@@ -3,15 +3,20 @@
 
 import pygame
 #import random
-from random import randint
-from HelperFunctions import *
+import random
+import HelperFunctions
+import Config
 
+# Static function
+class Callable:
+    def __init__(self, anycallable):
+        self.__call__ = anycallable
 
 class Snake(pygame.sprite.Sprite):
     # Private constants
     _DEFAULT_COLOUR = [255, 255, 255] # White
-    _DEFAULT_SIZE = [SNAKE_SIZE, SNAKE_SIZE]
-    _DEFAULT_POSITION = [SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2] # Start in the middle
+    _DEFAULT_SIZE = [Config.SNAKE_SIZE, Config.SNAKE_SIZE]
+    _DEFAULT_POSITION = [Config.SCREEN_WIDTH / 2, Config.SCREEN_HEIGHT / 2] # Start in the middle
 
     segments = []
 
@@ -51,18 +56,13 @@ class Snake(pygame.sprite.Sprite):
         RIGHT   = '1X'
         LEFT    = '-1X'
 
+        VALID = [UP, DOWN, RIGHT, LEFT]
+
         # Check direction is valid
         def SnakeMove_is_member(direction):
-            if direction == Snake.SnakeMove.UP:
-                return True
-            elif direction == Snake.SnakeMove.DOWN:
-                return True
-            elif direction == Snake.SnakeMove.RIGHT:
-                return True
-            elif direction == Snake.SnakeMove.LEFT:
-                return True
-
-            return False
+            # much quicker than all the ifs
+            # return whether direction is part of the valid options
+            return direction in VALID
 
         #makes the function 'is_member' a static function
         SnakeMove_is_member = Callable(SnakeMove_is_member)
@@ -94,10 +94,10 @@ class Snake(pygame.sprite.Sprite):
 
         print "TODO: make this use self.adjust_tail_size()"
 
-        for x in range(1, INITIAL_LENGTH): # Initial Length
+        for x in range(1, Config.INITIAL_LENGTH): # Initial Length
             tailposition = [(position[0] - x*size[0]), position[1]]
             # self.tail.add_tail_section(colour, size, tailposition)
-            self.segments.append(Snake._SnakeSegment(random_rgb(), size, tailposition))
+            self.segments.append(Snake._SnakeSegment(HelperFunctions.random_rgb(), size, tailposition))
 
 
 
@@ -165,9 +165,9 @@ class Snake(pygame.sprite.Sprite):
             for count in range(number):
             # ### TODO - randomly generate from the colour of the food eaten
                 if self.curseTail > 0:
-                    colour = BACKGROUND_COLOUR
+                    colour = Config.BACKGROUND_COLOUR
                 else:
-                    colour = random_rgb()
+                    colour = HelperFunctions.random_rgb()
                 # Randomise colour of new tail section
 
                 lastindex = len(self.segments) - 1
@@ -193,7 +193,7 @@ class Snake(pygame.sprite.Sprite):
     
     def randomize_snake_colour(self):
         for s in self.segments:
-            s.set_colour(random_rgb())
+            s.set_colour(HelperFunctions.random_rgb())
 
 
     def curse_tail(self):
@@ -201,9 +201,9 @@ class Snake(pygame.sprite.Sprite):
         self.randomize_snake_colour()
         
         
-        self.curseTail = FOOD_CURSE_TIME_TO_WEAR_OFF * FPS
+        self.curseTail = Config.FOOD_CURSE_TIME_TO_WEAR_OFF * Config.FPS
         for (idx, s) in enumerate(self.segments):
             if idx > 0:
-                s.set_colour(BACKGROUND_COLOUR)
+                s.set_colour(Config.BACKGROUND_COLOUR)
             else:
-                s.set_colour(random_rgb())
+                s.set_colour(HelperFunctions.random_rgb())

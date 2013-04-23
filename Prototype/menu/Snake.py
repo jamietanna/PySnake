@@ -2,21 +2,19 @@
 # -*- coding: utf-8 -*-
 
 import pygame
-from pygame import *
-from Food_Module import *
-from Snake_Module import *
-from Ball_Module import *
-import random
+import Food_Module
+import Snake_Module
+import Ball_Module
 from random import choice
-from Game import *
-
+import Game_Module
+import Config
 
 global gameOver
 global direction
 global score
 global userEscape
 
-G = Game()
+G = Game_Module.Game(None)
 
 running = True
 while running:

@@ -16,3 +16,5 @@ ball_size = 10
 
 # FPS = difficulty
 fps = 20
+
+background_colour = [0,0,0]

@@ -14,6 +14,9 @@ dirToSearch = 'levels/'
 
 files = dict()
 
+print "TODO: Config, BACKGROUND_COLOUR"
+
+
 for root, dirs, filenames in os.walk(dirToSearch):
 	for f in filenames:
 		fileDetails = os.path.splitext(f)
@@ -96,7 +99,7 @@ screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE)
 try:
 	BACKGROUND_COLOUR
 except NameError:
-	BACKGROUND_COLOUR = [0,0,0]
+	BACKGROUND_COLOUR = [0,0,128]#[0,0,0]
 else:
 	pass
 

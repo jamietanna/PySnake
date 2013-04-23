@@ -7,19 +7,21 @@ import os
 import pygame
 import sys
 
+import Config
+
 #BALL_SPEED = 0.035
-#BALL_SIZE = 10
+#Config.BALL_SIZE = 10
 ## Moved to config file
 
 def appendBallToList(listOfBalls):
-    x = random.randint(BALL_SIZE, SCREEN_WIDTH)
-    y = random.randint(BALL_SIZE, SCREEN_HEIGHT)
+    x = random.randint(Config.BALL_SIZE, Config.SCREEN_WIDTH)
+    y = random.randint(Config.BALL_SIZE, Config.SCREEN_HEIGHT)
     ball = Ball((x, y))
     listOfBalls.append(ball)
 
 class Ball(pygame.sprite.Sprite):
 
-    FILENAME = 'ball.png'
+    FILENAME = '../ball.png'
 
     def __init__(self, (x, y)):
         pygame.sprite.Sprite.__init__(self)
@@ -36,9 +38,9 @@ class Ball(pygame.sprite.Sprite):
         self.x = x
         self.y = y
         self.rect.centerx, self.rect.centery = [x,y]
-        self.speed = BALL_SPEED
+        self.speed = Config.BALL_SPEED
         self.angle = random.uniform(0, math.pi * 2)
-        self.size = BALL_SIZE
+        self.size = Config.BALL_SIZE
 
 
     def display(self):
@@ -49,15 +51,15 @@ class Ball(pygame.sprite.Sprite):
         self.y -= math.cos(self.angle) * self.speed
 
     def bounce(self):
-        if self.x > SCREEN_WIDTH - self.size:
-            self.x = 2 * (SCREEN_WIDTH - self.size) - self.x
+        if self.x > Config.SCREEN_WIDTH - self.size:
+            self.x = 2 * (Config.SCREEN_WIDTH - self.size) - self.x
             self.angle = -self.angle
         elif self.x < self.size:
             self.x = 2 * self.size - self.x
             self.angle = -self.angle
 
-        if self.y > SCREEN_HEIGHT - self.size:
-            self.y = 2 * (SCREEN_HEIGHT - self.size) - self.y
+        if self.y > Config.SCREEN_HEIGHT - self.size:
+            self.y = 2 * (Config.SCREEN_HEIGHT - self.size) - self.y
             self.angle = math.pi - self.angle
         elif self.y < self.size:
             self.y = 2 * self.size - self.y
@@ -67,7 +69,7 @@ class Ball(pygame.sprite.Sprite):
 
 class BallStandard(Ball):
 
-    FILENAME = 'ball.png'
+    FILENAME = '../ball.png'
 
     def __init__(self, (x, y)):
         super(BallStandard, self).__init__((x,y))
@@ -93,8 +95,9 @@ class BallStandard(Ball):
 
 class BallKiller(Ball):
 
-    FILENAME = 'ball2.png'
+    FILENAME = '../ball2.png'
 
     def __init__(self, (x, y)):
         super(BallKiller, self).__init__((x,y))
-        self.speed = BALL_SPEED * 1.5
+        print "TODO: const 100, Ball_M"
+        self.speed *= 1.5
