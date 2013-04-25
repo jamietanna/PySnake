@@ -164,7 +164,7 @@ import bisect
 import random
 
 
-
+HIGH_SCORES_FILENAME = "highscores.pys"
 
 
 
@@ -197,11 +197,10 @@ def isNewHighScore(score):
 
 
 def getHighScores():
-   FILENAME = "highscores.pys"
    createNew = False
    
    try:
-      highScores = open(FILENAME, "r")
+      highScores = open(HIGH_SCORES_FILENAME, "r")
       highScoresList = pickle.load(highScores)
    
    except EOFError:
@@ -213,7 +212,7 @@ def getHighScores():
       createNew = True
       
    if createNew:
-      highScores = open(FILENAME, "w+")
+      highScores = open(HIGH_SCORES_FILENAME, "w+")
       highScoresList = []
 
    return highScoresList
@@ -237,7 +236,7 @@ def appendHighScore(score, name):
    highScoresList.append((score, name))
    highScoresList.sort(reverse=True)
 
-   highScores = open("highscores.pys", "w")
+   highScores = open(HIGH_SCORES_FILENAME, "w")
    # only get top 10
    pickle.dump(highScoresList[:10], highScores)
    highScores.close()
@@ -247,6 +246,20 @@ def appendHighScore(score, name):
    # otherwise, we're in!
    return highScoresList[:10] != oldHighScores
    
+
+
+def makeTextRect(text, colour, xyTuple, screen, ourFont, isCentered = False):
+   text = ourFont.render(text, True, colour)
+   block = text.get_rect()
+   # if isCentered:
+   #    block.center = xyTuple
+   # else:
+   print "TODO: nice centering"
+   block.topleft = xyTuple 
+
+   return screen.blit(text, block)
+
+
 
 ## ---[ main ]------------------------------------------------------------------
 #  This function runs the entire screen and contains the main while loop
@@ -546,43 +559,43 @@ def main():
 
                #state = HIGH_SCORE_INPUT_OFFSET
                
-            # getInput = True
+               # getInput = True
 
 
-            # while getInput:
-            #    for keypress in pygame.event.get():
+               # while getInput:
+               #    for keypress in pygame.event.get():
 
-            #       print keypress.key 
+               #       print keypress.key 
 
-            #       if keypress.type == pygame.KEYDOWN:
-            #          if keypress.unicode.isalpha():
-            #             playerName += keypress.unicode
-            #          elif keypress.key == pygame.K_BACKSPACE:
-            #                playerName = playerName[:-1]
-            #                # playerName = ""
-            #          elif keypress.key == pygame.K_RETURN:
-            #             getInput = False
+               #       if keypress.type == pygame.KEYDOWN:
+               #          if keypress.unicode.isalpha():
+               #             playerName += keypress.unicode
+               #          elif keypress.key == pygame.K_BACKSPACE:
+               #                playerName = playerName[:-1]
+               #                # playerName = ""
+               #          elif keypress.key == pygame.K_RETURN:
+               #             getInput = False
+                     
+               #       #block = font.render(name, True, (255, 255, 255))
+               #       #rect = block.get_rect()
+               #       #rect.center = screen.get_rect().center
+               #       ourFont = pygame.font.SysFont('Arial', 18)
                   
-            #       #block = font.render(name, True, (255, 255, 255))
-            #       #rect = block.get_rect()
-            #       #rect.center = screen.get_rect().center
-            #       ourFont = pygame.font.SysFont('Arial', 18)
-               
-            #       text = ourFont.render(playerName, True, (255,0, 0))
-            #       block = text.get_rect()
-            #       block.center = screen.get_rect().center
-            #       rect_list.append(screen.blit(text, block))
+               #       text = ourFont.render(playerName, True, (255,0, 0))
+               #       block = text.get_rect()
+               #       block.center = screen.get_rect().center
+               #       rect_list.append(screen.blit(text, block))
 
 
-            #       # instr = ourFont.render('Please enter your name below, press enter to finish, and backspace to remove characters. ', True, (255,0, 0))
-            #       # block = instr.get_rect()
-            #       # block.center = (300,200)
-            #       # rect_list.append(screen.blit(instr, block))
+               #       # instr = ourFont.render('Please enter your name below, press enter to finish, and backspace to remove characters. ', True, (255,0, 0))
+               #       # block = instr.get_rect()
+               #       # block.center = (300,200)
+               #       # rect_list.append(screen.blit(instr, block))
 
 
-            #       screen.fill(0)
+               #       screen.fill(0)
 
-            #       pygame.display.update(rect_list)
+               #       pygame.display.update(rect_list)
 
             getInput = True
             showUpdates = True
@@ -645,12 +658,34 @@ def main():
             print 'High Scores'
             rect_list, state = high_scores_menu.update(e, state)
 
-            screen.fill( (0,0,0) )
-            text = ourFont.render(playerName, True, (255,0, 0))
-            block = text.get_rect()
-            block.center = (400,300) #dead center
-            rect_list.append(screen.blit(text, block))
+            highScoresList = getHighScores()
 
+            yOffset = 220
+
+            screen.fill( (0,0,0) )
+
+
+
+
+            # text = ourFont.render('Place', True, (255,0, 0))
+            # block = text.get_rect()
+            # block.topleft = (100, yOffset) 
+            
+            rect_list.append(makeTextRect('Place', (0,255,0), (100, yOffset), screen, ourFont, True))
+            rect_list.append(makeTextRect('Name', (0,255,0), (150, yOffset), screen, ourFont))
+            rect_list.append(makeTextRect('Score', (0,255,0), (400, yOffset), screen, ourFont))
+
+            yOffset += 30
+
+            for (idx, tup) in enumerate(highScoresList):
+               rect_list.append(makeTextRect((str(idx + 1) + '. '), (255,0,0), (100, yOffset), screen, ourFont, True))
+               rect_list.append(makeTextRect(str(tup[1]), (255,0,0), (150, yOffset), screen, ourFont))
+               rect_list.append(makeTextRect(str(tup[0]), (255,0,0), (400, yOffset), screen, ourFont))
+               yOffset += 30
+
+            rect_list.append(makeTextRect('Press enter or escape to return', (0,0,255), (500, 300), screen, ourFont, True))
+            rect_list.append(makeTextRect('to the main menu', (0,0,255), (500, 320), screen, ourFont, True))
+               
             pygame.display.update(rect_list)
 
             # High scores menu
