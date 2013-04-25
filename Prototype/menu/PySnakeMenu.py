@@ -8,6 +8,7 @@ import os
 import image
 import Config
 import string
+import HelperFunctions
 
 
 # base_path = '/home/jamie/Programming/Python/jvt02u-g51fse/Prototype'
@@ -158,106 +159,12 @@ def generate_high_score_input(screen, name):
 
 
 
-import pickle
-from random import randint
-import bisect
-import random
-
-
-HIGH_SCORES_FILENAME = "highscores.pys"
 
 
 
 
 
-def isNewHighScore(score):
 
-   # why add a terrible score?
-   if score <= 0:
-      return False
-
-   highScoresList = getHighScores()
-
-   # temp slice so we can say whether user's in the top 10 or not
-   oldHighScores = highScoresList[:]
-
-   length = len(oldHighScores)
-   if length > 0:
-      length =- 1
-   
-   highScoresList.append((score, '!!!TMP!!!'))
-   highScoresList.sort(reverse=True)
-
-   # just return whether the top 10 are the same elements as they are before
-   # if they're the same, no dice
-   # otherwise, we're in!
-   return highScoresList[:10] != oldHighScores
-
-
-
-
-def getHighScores():
-   createNew = False
-   
-   try:
-      highScores = open(HIGH_SCORES_FILENAME, "r")
-      highScoresList = pickle.load(highScores)
-   
-   except EOFError:
-      print "Blank high scores file"
-      createNew = True
-      
-   except IOError:
-      print "No file exists, creating new blank high scores file"
-      createNew = True
-      
-   if createNew:
-      highScores = open(HIGH_SCORES_FILENAME, "w+")
-      highScoresList = []
-
-   return highScoresList
-
-
-def appendHighScore(score, name):
-   
-   highScoresList = getHighScores()
-
-   # temp slice so we can say whether user's in the top 10 or not
-   oldHighScores = highScoresList[:]
-
-   length = len(oldHighScores)
-   if length > 0:
-      # print length
-      # print "-1"
-      length =- 1
-   
-#  highScores.close()
-   
-   highScoresList.append((score, name))
-   highScoresList.sort(reverse=True)
-
-   highScores = open(HIGH_SCORES_FILENAME, "w")
-   # only get top 10
-   pickle.dump(highScoresList[:10], highScores)
-   highScores.close()
-
-   # just return whether the top 10 are the same elements as they are before
-   # if they're the same, no dice
-   # otherwise, we're in!
-   return highScoresList[:10] != oldHighScores
-   
-
-
-def makeTextRect(text, colour, xyTuple, screen, ourFont, isCentered = False):
-   text = ourFont.render(text, True, colour)
-   block = text.get_rect()
-   # if isCentered:
-   #    block.center = xyTuple
-   # else:
-   print "TODO: nice centering"
-   block.topleft = xyTuple 
-
-   return screen.blit(text, block)
 
 
 
@@ -477,11 +384,11 @@ def main():
                   running = False
                   break
 
-            if isNewHighScore(playerScore):
+            if HelperFunctions.isNewHighScore(playerScore):
                state = STATE_HIGH_SCORE_INPUT
             else:
                print "TODO: Page that just says try again next time!"
-               state = STATE_HIGH_SCORE_TRY_AGAIN
+               # state = STATE_HIGH_SCORE_TRY_AGAIN
             
          elif state == STATE_HIGH_SCORE_INPUT:
 
@@ -641,7 +548,7 @@ def main():
             # end while
             print "Final name", playerName
 
-            appendHighScore(playerScore, playerName)
+            HelperFunctions.appendHighScore(playerScore, playerName)
 
             state = STATE_EXIT
             
@@ -658,7 +565,7 @@ def main():
             print 'High Scores'
             rect_list, state = high_scores_menu.update(e, state)
 
-            highScoresList = getHighScores()
+            highScoresList = HelperFunctions.getHighScores()
 
             yOffset = 220
 
@@ -666,25 +573,24 @@ def main():
 
 
 
-
             # text = ourFont.render('Place', True, (255,0, 0))
             # block = text.get_rect()
             # block.topleft = (100, yOffset) 
             
-            rect_list.append(makeTextRect('Place', (0,255,0), (100, yOffset), screen, ourFont, True))
-            rect_list.append(makeTextRect('Name', (0,255,0), (150, yOffset), screen, ourFont))
-            rect_list.append(makeTextRect('Score', (0,255,0), (400, yOffset), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('Place', (0,255,0), (100, yOffset), screen, ourFont, True))
+            rect_list.append(HelperFunctions.makeTextRect('Name', (0,255,0), (150, yOffset), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('Score', (0,255,0), (400, yOffset), screen, ourFont))
 
             yOffset += 30
 
             for (idx, tup) in enumerate(highScoresList):
-               rect_list.append(makeTextRect((str(idx + 1) + '. '), (255,0,0), (100, yOffset), screen, ourFont, True))
-               rect_list.append(makeTextRect(str(tup[1]), (255,0,0), (150, yOffset), screen, ourFont))
-               rect_list.append(makeTextRect(str(tup[0]), (255,0,0), (400, yOffset), screen, ourFont))
+               rect_list.append(HelperFunctions.makeTextRect((str(idx + 1) + '. '), (255,0,0), (100, yOffset), screen, ourFont, True))
+               rect_list.append(HelperFunctions.makeTextRect(str(tup[1]), (255,0,0), (150, yOffset), screen, ourFont))
+               rect_list.append(HelperFunctions.makeTextRect(str(tup[0]), (255,0,0), (400, yOffset), screen, ourFont))
                yOffset += 30
 
-            rect_list.append(makeTextRect('Press enter or escape to return', (0,0,255), (500, 300), screen, ourFont, True))
-            rect_list.append(makeTextRect('to the main menu', (0,0,255), (500, 320), screen, ourFont, True))
+            rect_list.append(HelperFunctions.makeTextRect('Press enter or escape to return', (0,0,255), (500, 300), screen, ourFont, True))
+            rect_list.append(HelperFunctions.makeTextRect('to the main menu', (0,0,255), (500, 320), screen, ourFont, True))
                
             pygame.display.update(rect_list)
 

@@ -1,11 +1,14 @@
 import pygame
 
+HIGH_SCORES_FILENAME = "highscores.pys"
+
 # Note: All values here are defaults. 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 DEFAULT_SCREEN_SIZE = [SCREEN_WIDTH, SCREEN_HEIGHT]
 
 # needed for later, but won't have been already set
+print "TODO: move screen out of here"
 screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE)
 
 ## These two will definitely be overwritten
