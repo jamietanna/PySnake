@@ -335,7 +335,7 @@ class Game():
     def exitGame(self):
         print 'Final score was ' + str(self.gameScore)
         print str(self.userEscape) + ' ' + str(self.gameOver)
-        exit()
+        # exit()
 
 
     def setWindowTitle(self,str=None):

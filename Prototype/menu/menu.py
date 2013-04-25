@@ -620,12 +620,12 @@ class cMenu:
             self.selection -= n
          elif (o == 'horizontal') and ((s) % n != 0):
             self.selection -= 1
-      elif e.key == pygame.K_r:
-         original_contained_rect = self.remove_buttons([s])
-         if self.selection -1 >= 0:
-            self.selection -= 1
-            self.selection_prev -= 1
-         redraw_full_menu = True
+      # elif e.key == pygame.K_r:
+      #    original_contained_rect = self.remove_buttons([s])
+      #    if self.selection -1 >= 0:
+      #       self.selection -= 1
+      #       self.selection_prev -= 1
+      #    redraw_full_menu = True
       elif e.key == pygame.K_RETURN:
          return [None], self.menu_items[s]['state']
 
