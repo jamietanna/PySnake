@@ -388,6 +388,7 @@ def main():
                state = STATE_HIGH_SCORE_INPUT
             else:
                print "TODO: Page that just says try again next time!"
+               state = STATE_EXIT
                # state = STATE_HIGH_SCORE_TRY_AGAIN
             
          elif state == STATE_HIGH_SCORE_INPUT:
@@ -577,20 +578,20 @@ def main():
             # block = text.get_rect()
             # block.topleft = (100, yOffset) 
             
-            rect_list.append(HelperFunctions.makeTextRect('Place', (0,255,0), (100, yOffset), screen, ourFont, True))
+            rect_list.append(HelperFunctions.makeTextRect('Place', (0,255,0), (100, yOffset), screen, ourFont))
             rect_list.append(HelperFunctions.makeTextRect('Name', (0,255,0), (150, yOffset), screen, ourFont))
             rect_list.append(HelperFunctions.makeTextRect('Score', (0,255,0), (400, yOffset), screen, ourFont))
 
             yOffset += 30
 
             for (idx, tup) in enumerate(highScoresList):
-               rect_list.append(HelperFunctions.makeTextRect((str(idx + 1) + '. '), (255,0,0), (100, yOffset), screen, ourFont, True))
+               rect_list.append(HelperFunctions.makeTextRect((str(idx + 1) + '. '), (255,0,0), (100, yOffset), screen, ourFont))
                rect_list.append(HelperFunctions.makeTextRect(str(tup[1]), (255,0,0), (150, yOffset), screen, ourFont))
                rect_list.append(HelperFunctions.makeTextRect(str(tup[0]), (255,0,0), (400, yOffset), screen, ourFont))
                yOffset += 30
 
-            rect_list.append(HelperFunctions.makeTextRect('Press enter or escape to return', (0,0,255), (500, 300), screen, ourFont, True))
-            rect_list.append(HelperFunctions.makeTextRect('to the main menu', (0,0,255), (500, 320), screen, ourFont, True))
+            rect_list.append(HelperFunctions.makeTextRect('Press enter or escape to return', (0,0,255), (500, 300), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('to the main menu', (0,0,255), (500, 320), screen, ourFont))
                
             pygame.display.update(rect_list)
 

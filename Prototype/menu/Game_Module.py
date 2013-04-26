@@ -11,6 +11,7 @@ import Ball_Module
 # from Config import *
 import Config
 import random
+import HelperFunctions
 # from Game import *
 
 def killerFromGroup(ballGroup):
@@ -21,16 +22,7 @@ def killerFromGroup(ballGroup):
             return b
     return None
 
-def generateXY():
-    posx = random.randint(0, Config.DEFAULT_SCREEN_SIZE[0])
-    posy = random.randint(0, Config.DEFAULT_SCREEN_SIZE[1])
-
-    return (posx, posy)
             
-def create_settings(settings):
-    for s in settings:
-        print s
-
 
 
 class Game():
@@ -100,18 +92,30 @@ class Game():
         self.ballGroup  = pygame.sprite.Group()
 
         for n in range(Config.INITIAL_BALL_NUM):
-            self.ballGroup.add(Ball_Module.BallStandard(generateXY()))
+            self.ballGroup.add(Ball_Module.BallStandard(HelperFunctions.generateSafeXY(self.snake, self.ballGroup, None, self.foodGroup)))
 
         self.ballKillerGroup = pygame.sprite.Group()
         if Config.INITIAL_BALL_KILLER_NUM != 0:
-            self.ballKillerGroup.add(Ball_Module.BallKiller(generateXY()))            
+            self.ballKillerGroup.add(Ball_Module.BallKiller(HelperFunctions.generateSafeXY(self.snake, self.ballGroup, None, self.foodGroup)))            
 
     def update(self):
         # handle all updates - ALL CODE BELOW:
+        self.handleKeyPress()
+
+        if self.userEscape:
+            ourFont = pygame.font.SysFont('Arial', 28)
+            text = HelperFunctions.makeTextRect('Paused. Score: ' + str(self.gameScore) + '. Press ESC to unpause.', (0,255,0), (400, 300), Config.screen, ourFont, True)
+            # bg = Rect(text.left, text.top, text.width, text.)
+            pygame.draw.rect(Config.screen, Config.BACKGROUND_COLOUR, (text.x, text.y, text.width, text.height), 1)
+
+            pygame.display.update([text])
+            return
+
         self.clock.tick(Config.FPS)
 
+        
 
-        self.handleKeyPress()
+        
         self.handleCollisions()
         self.handleExpiry()
         self.handleRandoms()
@@ -145,7 +149,7 @@ class Game():
         for keyPress in pygame.event.get():
             if keyPress.type == pygame.KEYDOWN:
                 if keyPress.key == pygame.K_ESCAPE or keyPress.key == pygame.K_q:
-                    self.userEscape = True
+                    self.userEscape = not self.userEscape
                 elif keyPress.key == pygame.K_UP:
                     if direction != Snake_Module.Snake.SnakeMove.DOWN:
                         direction = Snake_Module.Snake.SnakeMove.UP
@@ -199,6 +203,8 @@ class Game():
 
         #### FOOD
 
+        ballKiller = killerFromGroup(self.ballKillerGroup)
+
 
         collisionsFood = pygame.sprite.spritecollide(snakeHead,
                     self.foodGroup, True)
@@ -221,11 +227,11 @@ class Game():
                 if self.ballKillerSpawned() == False and (pygame.time.get_ticks() % 5 == 0):
                 # need a function to generate generic safe spawn
                 # maybe make the stimulus for a killer ball to be spawned more complicated 
-                    self.ballKillerGroup.add(Ball_Module.BallKiller(generateXY()))
+                    self.ballKillerGroup.add(Ball_Module.BallKiller(HelperFunctions.generateSafeXY(self.snake, self.ballGroup, ballKiller, self.foodGroup)))
 
             if properties['effect']['spawnStandard']:
                 if len(self.ballGroup) + 1 < Config.MAX_BALLS:
-                    self.ballGroup.add(Ball_Module.BallStandard(generateXY()))
+                    self.ballGroup.add(Ball_Module.BallStandard(HelperFunctions.generateSafeXY(self.snake, self.ballGroup, ballKiller, self.foodGroup)))
 
             if properties['effect']['freezeBall'] > 0:
                 # then no hard coded values, works based on the FPS *not* faster/slower hardware values
@@ -302,11 +308,11 @@ class Game():
 
         if ((time % Config.RANDOM_FOOD_MYSTERIOUS_CHANCE) == 0):
             print "Random Melon of Mystery generated"
-            self.foodGroup.add(Food_Module.FoodMysterious(None, None, None, generateXY()))
+            self.foodGroup.add(Food_Module.FoodMysterious(None, None, None, HelperFunctions.generateSafeXY(self.snake, self.ballGroup, self.ballKillerGroup, self.foodGroup)))
         
         if ((time % Config.RANDOM_FOOD_CURSE_CHANCE) == 0):
             print "Random Berries of Bane generated"
-            self.foodGroup.add(Food_Module.FoodCurse(None, None, None, generateXY()))
+            self.foodGroup.add(Food_Module.FoodCurse(None, None, None, HelperFunctions.generateSafeXY(self.snake, self.ballGroup, self.ballKillerGroup, self.foodGroup)))
 
 
     def handleExpiry(self):

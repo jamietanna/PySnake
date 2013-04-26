@@ -95,10 +95,44 @@ def appendHighScore(score, name):
 def makeTextRect(text, colour, xyTuple, screen, ourFont, isCentered = False):
    text = ourFont.render(text, True, colour)
    block = text.get_rect()
-   # if isCentered:
-   #    block.center = xyTuple
-   # else:
-   print "TODO: nice centering"
-   block.topleft = xyTuple 
+   if isCentered:
+      block.center = xyTuple
+   else:
+      # print "TODO: nice centering"
+      block.topleft = xyTuple 
 
    return screen.blit(text, block)
+
+def generateXY():
+    posx = random.randint(0, Config.DEFAULT_SCREEN_SIZE[0])
+    posy = random.randint(0, Config.DEFAULT_SCREEN_SIZE[1])
+
+    return (posx, posy)
+
+def generateSafeXY(snake, ballGroup, killerBall, foodGroup):
+   snakeHead = snake.get_head()
+
+   notValidCoord = False
+
+   posx = random.randint(0, Config.DEFAULT_SCREEN_SIZE[0])
+   posy = random.randint(0, Config.DEFAULT_SCREEN_SIZE[1])
+
+
+   while notValidCoord:
+
+      posx = random.randint(0, Config.DEFAULT_SCREEN_SIZE[0])
+      posy = random.randint(0, Config.DEFAULT_SCREEN_SIZE[1])
+      
+      test = Food(None, None, None, (posx, posy))
+
+      if not pygame.sprite.spritecollide(test, snakeHead, False):
+         if not pygame.sprite.spritecollide(test, ballGroup, False):
+            if killerBall and not pygame.sprite.spritecollide(test, killerBall, False):
+               if not pygame.sprite.spritecollide(test, foodGroup, False):
+                  notValidCoord = True
+
+   return (posx, posy)
+
+
+
+   # return 
