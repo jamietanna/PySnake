@@ -1,28 +1,23 @@
 # print "BEFORE REMOVE, CLEAR!"
 print "SORT killerFromGroup()"
 print "TODO: MAKE make_food(snake, foodType, properties)"
-print "TODO: rules!!!"
-print "TODO: replay?"
 
 import pygame
 import Food_Module
 import Snake_Module
 import Ball_Module
-# from Config import *
 import Config
 import random
 import HelperFunctions
-# from Game import *
+
 
 def killerFromGroup(ballGroup):
-    ### NEED A BETTER WAY OF DOING THIS
+    # Not an elegant way to do this
     G = pygame.sprite.Group()
     for b in ballGroup:
         if b.__class__.__name__ == 'BallKiller':
             return b
     return None
-
-            
 
 
 class Game():
@@ -32,12 +27,6 @@ class Game():
 
 
     def __init__(self, gameSettings = None):
-
-        
-
-        # ### TODO less {self.}
-
-
 
         ### --------- initialise pygame and set up the window
         pygame.init()
@@ -85,9 +74,6 @@ class Game():
             self.foodGroup.add(Food_Module.make_food(self.snake, 'FoodCurse'))
 
 
-        print "TODO: random food generation i.e. curse/mysterious i.e. if time() % 123 == 0"
-
-
         ### --------- Initial balls
 
         self.ballGroup  = pygame.sprite.Group()
@@ -105,8 +91,9 @@ class Game():
 
         if self.userEscape:
             ourFont = pygame.font.SysFont('Arial', 28)
-            text = HelperFunctions.makeTextRect('Paused. Score: ' + str(self.gameScore) + '. Press ESC to unpause.', (0,255,0), (400, 300), Config.screen, ourFont, True)
-            # bg = Rect(text.left, text.top, text.width, text.)
+            text = HelperFunctions.makeTextRect('Paused. Score: ' + str(self.gameScore) + '. Press q to quit, ESC to unpause.', (0,255,0), (400, 300), Config.screen, ourFont, True)
+            
+            # draw a rectangle big enough for the text background
             pygame.draw.rect(Config.screen, Config.BACKGROUND_COLOUR, (text.x, text.y, text.width, text.height), 1)
 
             pygame.display.update([text])
@@ -150,7 +137,13 @@ class Game():
         for keyPress in pygame.event.get():
             if keyPress.type == pygame.KEYDOWN:
                 if keyPress.key == pygame.K_ESCAPE or keyPress.key == pygame.K_q:
-                    self.userEscape = not self.userEscape
+                    # game over if user's quit when on the pause menu
+                    if self.userEscape and keyPress.key == pygame.K_q:
+                        self.gameOver = True
+                    # otherwise flip whether we're paused
+                    else:
+                        self.userEscape = not self.userEscape
+
                 elif keyPress.key == pygame.K_UP:
                     if direction != Snake_Module.Snake.SnakeMove.DOWN:
                         direction = Snake_Module.Snake.SnakeMove.UP
@@ -166,11 +159,6 @@ class Game():
 
 
                 self.snake.direction = direction 
-                #else:
-                #else:
-                 #   print "ELSE"
-
-
 
 
     def handleUpdates(self):
@@ -211,8 +199,6 @@ class Game():
                     self.foodGroup, True)
         if collisionsFood:
 
-            # #### TODO reactToCollision(properties, snake, foodGroup)
-
             # get the collided food item, then recreate it in a new random, position
 
             properties = collisionsFood[0].get_properties()
@@ -226,7 +212,6 @@ class Game():
             if properties['effect']['spawnKiller']:
                 # 20% chance
                 if self.ballKillerSpawned() == False and (pygame.time.get_ticks() % 5 == 0):
-                # need a function to generate generic safe spawn
                 # maybe make the stimulus for a killer ball to be spawned more complicated 
                     self.ballKillerGroup.add(Ball_Module.BallKiller(HelperFunctions.generateSafeXY(self.snake, self.ballGroup, ballKiller, self.foodGroup)))
 
@@ -243,8 +228,8 @@ class Game():
                 
             if properties['effect']['removeStandard']:
                 print "Removed ball"
-                # bad way of removing the first element 
 
+                # bad way of removing the first element, but it works and isn't too complicated
                 for b in self.ballGroup:
                     self.ballGroup.remove(b)
                     break
@@ -256,20 +241,19 @@ class Game():
 
             self.snake.adjust_tail_size(properties['effect']['size'])
 
+            # generate the score based on the score base per the food, how long is left on the food before it expires, 
+            # and then divide it by the FPS (as time is in FPS), then apply difficulty bonus
             _S = (float) ((properties['effect']['score'] * properties['time']))
             self.gameScore += int((round(_S / Config.FPS)) * Config.DIFFICULTY_BONUS)
 
 
             self.setWindowTitle(str(self.gameScore))
 
-                # update these so we can then redraw them later - only update once we've got a larger snake, otherwise we're wasting CPU!
+            # update these so we can then redraw them later - only update once we've got a larger snake, otherwise we're wasting CPU!
 
             self.snakeSprite = pygame.sprite.Group()
             self.snakeSprite.add(self.snake.get_sections())
             self.snakeSections = self.snake.get_sections()
-
-        #### END collisionsFood
-
 
         # only work on collisions with ballKiller if we've got one in play
         # if len(self.ballKillerGroup) > 0:

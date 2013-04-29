@@ -1,12 +1,22 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 ############# http://stackoverflow.com/questions/13801828/how-to-create-a-play-again-option-with-pygame
 
-print "TODO: Colours as const"
+print 'TODO: Colours as const'
+
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 # implemented Scott Barlow's Menu system
 # http://www.pygame.org/project-MenuClass-1260-.html
 
-import sys, pygame
+import sys
+import pygame
+
 # from menu import *
+
 import menu
 import os
 import image
@@ -16,12 +26,10 @@ import HelperFunctions
 import Game_Module
 
 # base_path = '/home/jamie/Programming/Python/jvt02u-g51fse/Prototype'
-base_path = os.path.dirname(os.path.realpath(__file__)) #'H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype'
 
-
+base_path = os.path.dirname(os.path.realpath(__file__))  # 'H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype'
 
 sys.path.append(base_path)
-
 
 STATE_MAIN_MENU = 0
 STATE_LEVEL_SELECT = 1
@@ -31,517 +39,620 @@ STATE_HIGH_SCORES = 4
 STATE_RULES_P_ONE = 5
 STATE_RULES_P_TWO = 6
 STATE_HIGH_SCORE_INPUT = 7
+STATE_HIGH_SCORE_TRY_AGAIN = 8
 STATE_EXIT = -1
 
 LEVEL_ID_OFFSET = 9000
 HIGH_SCORE_INPUT_OFFSET = 26000
 
 levels_path = os.path.join(base_path, 'levels')
-img_dir = os.path.join(base_path, 'images') # "H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype\menu\MenuClass_V1.0.3\images"
+img_dir = os.path.join(base_path, 'images')  # "H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype\menu\MenuClass_V1.0.3\images"
 
 # path = os.path.join('C:\\','Users','Mart','Documents','FSE','Prototype', 'levels/')
+
 num = 0
+
 
 def get_level_list():
     level_files = dict()
 
-    for root, dirs, filenames in os.walk(levels_path):
-       level_list = os.listdir(levels_path)
-       num = 0
-       for f in filenames:
-          fileDetails = os.path.splitext(f)
+    for (root, dirs, filenames) in os.walk(levels_path):
+        level_list = os.listdir(levels_path)
+        num = 0
+        for f in filenames:
+            fileDetails = os.path.splitext(f)
 
           # only if we have a valid lvl file
-          if fileDetails[1]  == '.lvl':
-             level_files[num] = dict()
-             settings = {}
-             execfile( os.path.join(levels_path, f) , settings)
 
-             level_files[num]['settings'] = settings
-             level_files[num]['fName']    = fileDetails[0]
-             level_files[num]['fExt']     = fileDetails[1]
+            if fileDetails[1] == '.lvl':
+                level_files[num] = dict()
+                settings = {}
+                execfile(os.path.join(levels_path, f), settings)
 
-             num += 1
+                level_files[num]['settings'] = settings
+                level_files[num]['fName'] = fileDetails[0]
+                level_files[num]['fExt'] = fileDetails[1]
+
+                num += 1
     return level_files
-    
+
 
 def get_level_settings(fileName):
-   global levels_path
+    global levels_path
 
-   print "OPENING FILE ", fileName
-   
-   settings = {}
-   execfile(os.path.join(levels_path, fileName + '.lvl'), settings)
-   return settings
-
-
+    execfile(os.path.join(levels_path, fileName + '.lvl'), settings)
+    return settings
 
 
 def generate_main_menu(screen):
-   main_menu = menu.cMenu(50, 50, 0, 0, 'vertical', 10, screen,
-               [('Select Level', STATE_LEVEL_SELECT, None),
-                ('Create Level',  STATE_LEVEL_CREATOR, None),
-                ('High Scores', STATE_HIGH_SCORES, None),
-                ('Game Rules', STATE_RULES_P_ONE, None),
-                ('Exit', STATE_EXIT, None)])
+    main_menu = menu.cMenu(
+        50,
+        50,
+        0,
+        0,
+        'vertical',
+        10,
+        screen,
+        [('Select Level', STATE_LEVEL_SELECT, None), ('Create Level',
+         STATE_LEVEL_CREATOR, None), ('High Scores', STATE_HIGH_SCORES,
+         None), ('Game Rules', STATE_RULES_P_ONE, None), ('Exit',
+         STATE_EXIT, None)],
+        )
 
+    main_menu.set_position(330, 300)
+    main_menu.set_alignment('center', 'center')
+    main_menu.set_unselected_color([122, 201, 67])
+    main_menu.set_selected_color([255, 255, 255])
 
-   main_menu.set_position(330,300)
-   main_menu.set_alignment('center', 'center')
-   main_menu.set_unselected_color([122,201,67])
-   main_menu.set_selected_color([255,255,255])
-
-   return main_menu
+    return main_menu
 
 
 def generate_level_select(screen):
 
-   level_files = get_level_list()
+    level_files = get_level_list()
 
-   level_select_menu = menu.cMenu(50, 50, 0, 0, 'vertical', 8, screen, [])
-   
-   for x in range(len(level_files)):
-      level_name = str(level_files[x]['settings']['level_name']) + " (" + str(level_files[x]['settings']['difficulty']) + ")"
-      level_select_menu.add_buttons([(level_name, (9000 + x + 1), None)])
+    level_select_menu = menu.cMenu(
+        50,
+        50,
+        0,
+        0,
+        'vertical',
+        8,
+        screen,
+        [],
+        )
 
-   level_select_menu.add_buttons([('Return to Main', STATE_MAIN_MENU, None)])
+    for x in range(len(level_files)):
+        level_name = str(level_files[x]['settings']['level_name']) \
+            + ' (' + str(level_files[x]['settings']['difficulty']) + ')'
+        level_select_menu.add_buttons([(level_name, 9000 + x + 1,
+                None)])
 
-   level_select_menu.set_position(50,250)
-   level_select_menu.set_alignment('top', 'left')
-   level_select_menu.set_unselected_color([122,201,67])
-   level_select_menu.set_selected_color([255,255,255]) 
+    level_select_menu.add_buttons([('Return to Main', STATE_MAIN_MENU,
+                                  None)])
 
-   return level_select_menu
+    level_select_menu.set_position(50, 250)
+    level_select_menu.set_alignment('top', 'left')
+    level_select_menu.set_unselected_color([122, 201, 67])
+    level_select_menu.set_selected_color([255, 255, 255])
+
+    return level_select_menu
+
 
 def generate_high_scores(screen):
-   high_scores_menu = menu.cMenu(200, 200, 0, 0, 'horizontal', 8, screen, [('Return to Main', STATE_MAIN_MENU, None)])
+    high_scores_menu = menu.cMenu(
+        200,
+        200,
+        0,
+        0,
+        'horizontal',
+        8,
+        screen,
+        [('Return to Main', STATE_MAIN_MENU, None)],
+        )
 
-   high_scores_menu.set_unselected_color([122,201,67])
-   high_scores_menu.set_selected_color([255,255,255])
-   high_scores_menu.set_position(315,510)
-   high_scores_menu.set_alignment('center', 'center')
-   
-   return high_scores_menu
+    high_scores_menu.set_unselected_color([122, 201, 67])
+    high_scores_menu.set_selected_color([255, 255, 255])
+    high_scores_menu.set_position(315, 510)
+    high_scores_menu.set_alignment('center', 'center')
+
+    return high_scores_menu
+
 
 def generate_game_rules(screen, screenNum):
 
-   game_rules_menu = menu.cMenu(200, 200, 0, 0, 'horizontal', 8, screen, [])
+    game_rules_menu = menu.cMenu(
+        200,
+        200,
+        0,
+        0,
+        'horizontal',
+        8,
+        screen,
+        [],
+        )
 
+    if screenNum == 1:
+        game_rules_menu.add_buttons([('Next', STATE_RULES_P_TWO, None),
+                                    ('Return to Main', STATE_MAIN_MENU,
+                                    None)])
+    elif screenNum == 2:
+        game_rules_menu.add_buttons([('Previous', STATE_RULES_P_ONE,
+                                    None), ('Return to Main',
+                                    STATE_MAIN_MENU, None)])
 
-   if screenNum == 1:
-      game_rules_menu.add_buttons([('Next', STATE_RULES_P_TWO, None),('Return to Main', STATE_MAIN_MENU, None)])
-   elif screenNum == 2:
-      game_rules_menu.add_buttons([('Previous', STATE_RULES_P_ONE, None),('Return to Main', STATE_MAIN_MENU, None)])
+    game_rules_menu.set_unselected_color([122, 201, 67])
+    game_rules_menu.set_selected_color([255, 255, 255])
+    game_rules_menu.set_position(200, 510)
+    game_rules_menu.set_alignment('center', 'center')
 
-
-   game_rules_menu.set_unselected_color([122,201,67])
-   game_rules_menu.set_selected_color([255,255,255])
-   game_rules_menu.set_position(200,510)
-   game_rules_menu.set_alignment('center', 'center')
-
-   return game_rules_menu
-
+    return game_rules_menu
 
 
 def generate_high_score_input(screen, name):
+
    # high_score_input = menu.cMenu(200, 200, 0, 0, 'horizontal', 8, screen, [('Return to Main', STATE_MAIN_MENU, None)])
-   high_score_input = menu.cMenu(50, 50, 30, 30, 'vertical', 5, screen, [])
 
-   high_score_input.add_buttons([(name, HIGH_SCORE_INPUT_OFFSET, None)])
+    high_score_input = menu.cMenu(
+        50,
+        50,
+        30,
+        30,
+        'vertical',
+        5,
+        screen,
+        [],
+        )
 
-   for c in string.uppercase:
-      print c, HIGH_SCORE_INPUT_OFFSET + ord(c)
-      high_score_input.add_buttons([(str(c), HIGH_SCORE_INPUT_OFFSET + ord(c), None)])
+    high_score_input.add_buttons([(name, HIGH_SCORE_INPUT_OFFSET,
+                                 None)])
 
-   high_score_input.set_position(50,250)
-   high_score_input.set_alignment('top', 'left')
-   high_score_input.set_unselected_color([122,201,67])
-   high_score_input.set_selected_color([255,255,255]) 
-   
-   return high_score_input
+    high_score_input.set_position(50, 250)
+    high_score_input.set_alignment('top', 'left')
+    high_score_input.set_unselected_color([122, 201, 67])
+    high_score_input.set_selected_color([255, 255, 255])
+
+    return high_score_input
 
 
-   
 # def initialize_level(...):
    # print "Level", (state % 9000)
 
    # return high_score_input
 
-
-
-
-
-
-
-
-
-
-
-
 ## ---[ main ]------------------------------------------------------------------
 #  This function runs the entire screen and contains the main while loop
 #
+
 def main():
 
+    print 'TODO: get all (50,250) etc as different variables, esp the colours'
 
-
-
-   print "TODO: check expiry working - not sure?!"
-   print "TODO: move these all into func, i.e. generate_select_level()"
-   print "TODO: get all (50,250) etc as different variables, esp the colours"
-
-
-   playerName = ''
+    playerName = ''
 
    # Initialize Pygame
-   pygame.init()
+
+    pygame.init()
+
    # Create a window of 800x600 pixels
-   print "TODO: grab res from Config"
-   screen = pygame.display.set_mode(Config.DEFAULT_SCREEN_SIZE)
+
+    screen = pygame.display.set_mode(Config.DEFAULT_SCREEN_SIZE)
 
    # Set the window caption
-   pygame.display.set_caption("PySnake")
-   bkg = image.load_image('pysnake.jpg', img_dir)
-   
 
+    pygame.display.set_caption('PySnake')
+    bkg = image.load_image('pysnake.jpg', img_dir)
 
-   print "TODO: more programmatic way, i.e. eval/exec, need an offset"
+    rules_one = image.load_image('pysnake_rules_one.jpg', img_dir)
+    rules_two = image.load_image('pysnake_rules_two.jpg', img_dir)
 
-   rules_one = image.load_image('pysnake_rules_one.jpg', img_dir)
-   rules_two = image.load_image('pysnake_rules_two.jpg', img_dir)
-   # Create 3 diffrent menus.  One of them is only text, another one is only
-   # images, and a third is -gasp- a mix of images and text buttons!  To
-   # understand the input factors, see the menu file
-   menu = generate_main_menu(screen)
+    menu = generate_main_menu(screen)
 
-   level_select_menu = generate_level_select(screen)
-   high_scores_menu = generate_high_scores(screen)
-   game_rules_one_menu = generate_game_rules(screen, 1)
-   game_rules_two_menu = generate_game_rules(screen, 2)
+    level_select_menu = generate_level_select(screen)
+    high_scores_menu = generate_high_scores(screen)
+    game_rules_one_menu = generate_game_rules(screen, 1)
+    game_rules_two_menu = generate_game_rules(screen, 2)
 
-   high_score_input_menu = generate_high_score_input(screen, playerName)
+    high_score_input_menu = generate_high_score_input(screen,
+            playerName)
 
-   # print "Loading Levels..."
-
-   # Create the state variables (make them different so that the user event is
-   # triggered at the start of the "while 1" loop so that the initial display
-   # does not wait for user input)
-   state = STATE_MAIN_MENU
-   prev_state = STATE_EXIT
+    state = STATE_MAIN_MENU
+    prev_state = STATE_EXIT
 
    # rect_list is the list of pygame.Rect's that will tell pygame where to
    # update the screen (there is no point in updating the entire screen if only
    # a small portion of it changed!)
-   rect_list = []
 
+    rect_list = []
 
-   imageIsShown = False
+    imageIsShown = False
 
-   EVENT_CHANGE_STATE = pygame.USEREVENT + 1
+    EVENT_CHANGE_STATE = pygame.USEREVENT + 1
 
-   # Ignore mouse motion (greatly reduces resources when not needed)
-   
-   # only allow what we want, therefore speed up the program
-   pygame.event.set_allowed(None)
-   pygame.event.set_allowed([pygame.KEYDOWN, EVENT_CHANGE_STATE, pygame.QUIT])
+   # only allow what we will be dealing with, therefore speed up the program
 
+    pygame.event.set_allowed(None)
+    pygame.event.set_allowed([pygame.KEYDOWN, EVENT_CHANGE_STATE,
+                             pygame.QUIT])
 
-   print "BUG: in Game rules, press ESC, go back, no image"
-   
-   ourFont = pygame.font.SysFont('Arial', 24)
+    print 'BUG: in Game rules, press ESC, go back, no image'
+
+    ourFont = pygame.font.SysFont('Arial', 24)
 
    # The main while loop
-   while True:
+
+    while True:
+
       # Check if the state has changed, if it has, then post a user event to
       # the queue to force the menu to be shown at least once
 
       # high_score_input_menu = generate_high_score_input(screen, playerName)
-        
+
       # if len(playerName) > 0:
       #    print playerName
 
-      if prev_state != state:
-         pygame.event.post(pygame.event.Event(EVENT_CHANGE_STATE, key = 0))
-         prev_state = state
-         screen.blit(bkg, (0, 0))
-         pygame.display.flip()
+        if prev_state != state:
+            pygame.event.post(pygame.event.Event(EVENT_CHANGE_STATE,
+                              key=0))
+            prev_state = state
+            screen.blit(bkg, (0, 0))
+            pygame.display.flip()
 
       # Get the next event
-      e = pygame.event.wait()
 
-      # if state > HIGH_SCORE_INPUT_OFFSET:
-      #    if prev_state != state:
-      #       print state, prev_state
-
-      # print (state == STATE_MAIN_MENU)
-
-
-
+        e = pygame.event.wait()
 
       # Update the menu, based on which "state" we are in - When using the menu
       # in a more complex program, definitely make the states global variables
       # so that you can refer to them by a name
-      if e.type == pygame.KEYDOWN or e.type == EVENT_CHANGE_STATE:
 
-         if e.type == pygame.KEYDOWN:
-            if e.key == pygame.K_ESCAPE:
+        if e.type == pygame.KEYDOWN or e.type == EVENT_CHANGE_STATE:
+
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+
                # if we press escape/q on the main menu, quit
-               if state == STATE_MAIN_MENU:
-                  state = STATE_EXIT
-               # otherwise return to the main menu
-               else:
-                  state = STATE_MAIN_MENU
 
-            # don't let the user press 
+                    if state == STATE_MAIN_MENU:
+                        state = STATE_EXIT
+                    else:
+                        # otherwise return to the main menu
+                        state = STATE_MAIN_MENU
+
+            # don't let the user press
             # if pygame.key.name(e.key) in string.lowercase:
             #    state = ord(pygame.key.name(e.key)) + HIGH_SCORE_INPUT_OFFSET
 
-         
+            if state == STATE_MAIN_MENU:
+                (rect_list, state) = menu.update(e, state)
+            elif state == STATE_LEVEL_SELECT:
 
-         if state == STATE_MAIN_MENU:
-            rect_list, state = menu.update(e, state)
+                (rect_list, state) = level_select_menu.update(e, state)
+            elif state > LEVEL_ID_OFFSET and state \
+                < HIGH_SCORE_INPUT_OFFSET:
 
-         elif state == STATE_LEVEL_SELECT:
-            rect_list, state = level_select_menu.update(e, state)
+                (rect_list, state) = level_select_menu.update(e, state)
 
-         elif state > LEVEL_ID_OFFSET and state < HIGH_SCORE_INPUT_OFFSET:
-            rect_list, state = level_select_menu.update(e, state)
-            
-            # G = Game_Module.Game()
-            
-            level_files = get_level_list()
+               # G = Game_Module.Game()
 
-            fName = level_files[(state % 9000) - 1]['fName']
+                level_files = get_level_list()
 
+                fName = level_files[state % 9000 - 1]['fName']
 
-            # print "CHOSEN: \"", level_files[(state % 9000) - 1]['settings']['level_name'], "\""
-            # print "SPAWN NEW GAME"
+                level_settings = get_level_settings(fName)
 
+                continueBool = False
 
-            level_settings = get_level_settings(fName)
+                for val in [
+                    'difficulty',
+                    'level_name',
+                    'initial_food_num',
+                    'initial_food_super_num',
+                    'initial_food_mysterious_num',
+                    'initial_food_curse_num',
+                    'initial_ball_num',
+                    'initial_ball_killer_num',
+                    'max_balls',
+                    'ball_speed',
+                    'ball_size',
+                    'fps',
+                    'background_colour',
+                    ]:
+                    try:
+                        if isinstance(level_settings[val], str):
+                            pass
+                    except KeyError:
+                        print 'KEY ERROR', val
+                        continueBool = True
 
-            # pass # import everything
+                    if continueBool:
+                        continueBool = False
+                        continue
 
-            continueBool = False
+                  # surround strings with double quotes, leave integers as they are
 
-            for val in ['difficulty', 'level_name', 'initial_food_num', 'initial_food_super_num', 'initial_food_mysterious_num', 'initial_food_curse_num', 'initial_ball_num', 'initial_ball_killer_num', 'max_balls', 'ball_speed', 'ball_size', 'fps','background_colour']:
-               try:
-                  if isinstance(level_settings[val], str):
-                     pass
-               except KeyError:
-                  print "KEY ERROR", val
-                  continueBool = True
+                    if isinstance(level_settings[val], str):
+                        exec 'Config.' + str(val.upper()) + ' = "' \
+                            + str(level_settings[val]) + '"'
+                    else:
+                        exec 'Config.' + str(val.upper()) + ' = ' \
+                            + str(level_settings[val]) + ''
 
-               if continueBool:
-                  continueBool = False
-                  continue
-            
-               # print eval('Config.'+str(val.upper()))
+                    # print eval('Config.' + str(val.upper()))
 
-               # type as they are
-               if isinstance(level_settings[val], str):
-                   exec ('Config.'+str(val.upper())+' = "' + str(level_settings[val])+ '"')
-               else:
-                   exec ('Config.'+str(val.upper())+' = ' + str(level_settings[val])+ '')
-               
-               print eval('Config.'+str(val.upper()))        
-            # end for
+               # end for
 
-            Config.PAGE_TITLE = Config.PAGE_TITLE + ' ' + level_files[(state % 9000) - 1]['settings']['level_name']
-
+                Config.PAGE_TITLE = Config.PAGE_TITLE + ' ' \
+                    + level_files[state % 9000 - 1]['settings'
+                        ]['level_name']
 
                # work out the bonus based on difficulty - will only work for valid difficulties
                # try:
-            exec('Config.DIFFICULTY_BONUS = Config.DIFFICULTY_BONUS_'+Config.DIFFICULTY.upper())
 
-            Config.BACKGROUND = pygame.Surface(screen.get_size())
-            Config.BACKGROUND = Config.BACKGROUND.convert()
-            Config.BACKGROUND.fill(Config.BACKGROUND_COLOUR)
-            Config.screen = pygame.display.set_mode(Config.DEFAULT_SCREEN_SIZE)
+                exec 'Config.DIFFICULTY_BONUS = Config.DIFFICULTY_BONUS_' \
+                    + Config.DIFFICULTY.upper()
+
+                Config.BACKGROUND = pygame.Surface(screen.get_size())
+                Config.BACKGROUND = Config.BACKGROUND.convert()
+                Config.BACKGROUND.fill(Config.BACKGROUND_COLOUR)
+                Config.screen = \
+                    pygame.display.set_mode(Config.DEFAULT_SCREEN_SIZE)
+
             # print "COLOUR: ", Config.BACKGROUND_COLOUR
 
             # better way of doing it?
             # execfile('Snake.py')
 
-            G = Game_Module.Game(None)
+                G = Game_Module.Game(None)
 
-            running = True
-            while running:
-                G.update()
-                if G.gameOver:
-                  playerScore = G.gameScore
-                  del(G)
-                  running = False
-                  break
+                running = True
+                while running:
+                    G.update()
+                    if G.gameOver:
+                        playerScore = G.gameScore
+                        del G
+                        running = False
+                        break
 
-            if HelperFunctions.isNewHighScore(playerScore):
-               state = STATE_HIGH_SCORE_INPUT
-            else:
-               print "TODO: Page that just says try again next time!"
-               state = STATE_EXIT
+                if HelperFunctions.isNewHighScore(playerScore):
+                    state = STATE_HIGH_SCORE_INPUT
+                else:
+                    # state = STATE_EXIT
+                    state = STATE_HIGH_SCORE_TRY_AGAIN
+
+            elif state == STATE_HIGH_SCORE_INPUT:
+
                # state = STATE_HIGH_SCORE_TRY_AGAIN
-            
-         elif state == STATE_HIGH_SCORE_INPUT:
 
-            ##### http://www.facebook.com/l.php?u=http%3A%2F%2Fstackoverflow.com%2Fquestions%2F14111381%2Fhow-to-make-pygame-print-input-from-user&h=kAQHS8xjR
+            # #### http://www.facebook.com/l.php?u=http%3A%2F%2Fstackoverflow.com%2Fquestions%2F14111381%2Fhow-to-make-pygame-print-input-from-user&h=kAQHS8xjR
 
+                (rect_list, state) = high_score_input_menu.update(e,
+                        state)
 
-            rect_list, state = high_score_input_menu.update(e, state)
+                if False:
+                    pass
 
-            if False:
-               pass
-            
-            getInput = True
-            showUpdates = True
+                getInput = True
+                showUpdates = True
 
-            
-            while getInput:
-               for keypress in pygame.event.get():
-                  if keypress.type == pygame.KEYDOWN:
-                     if keypress.unicode.isalpha():
-                        playerName += keypress.unicode
-                        showUpdates = True
+                while getInput:
+                    for keypress in pygame.event.get():
+                        if keypress.type == pygame.KEYDOWN:
+                            if keypress.unicode.isalpha():
+                                playerName += keypress.unicode
+                                showUpdates = True
+                            elif keypress.key == pygame.K_BACKSPACE:
 
-                     elif keypress.key == pygame.K_BACKSPACE:
-                        playerName = playerName[:-1]
-                        showUpdates = True
+                                playerName = playerName[:-1]
+                                showUpdates = True
+                            elif keypress.key == pygame.K_RETURN:
 
-                     elif keypress.key == pygame.K_RETURN:
-                        getInput = False
-                        continue
-        
-                  #block = font.render(name, True, (255, 255, 255))
-                  #rect = block.get_rect()
-                  #rect.center = screen.get_rect().center
-               if showUpdates:
+                                getInput = False
+                                continue
 
-                  screen.fill( (0,0,0) )
-                  text = ourFont.render(playerName, True, (255,0, 0))
-                  block = text.get_rect()
-                  block.center = (400,300) #dead center
-                  rect_list.append(screen.blit(text, block))
+                    if showUpdates:
 
-                  text = ourFont.render('Please type your name, press enter to finish, and backspace to remove characters. ', True, (255, 255, 255))
-                  block = text.get_rect()
-                  block.center = (400,250)
+                        screen.fill((0, 0, 0))
+                        text = ourFont.render(playerName, True, (255,
+                                0, 0))
+                        block = text.get_rect()
+                        block.center = (400, 300)  # dead center
+                        rect_list.append(screen.blit(text, block))
+
+                        text = \
+                            ourFont.render('Please type your name, press enter to finish, and backspace to remove characters. '
+                                , True, (255, 255, 255))
+                        block = text.get_rect()
+                        block.center = (400, 250)
+
                   # block.center[1] -= 100
-                  
-                  rect_list.append(screen.blit(text, block))
 
+                        rect_list.append(screen.blit(text, block))
 
-                  pygame.display.update(rect_list)
-                  showUpdates = False
+                        pygame.display.update(rect_list)
+                        showUpdates = False
 
             # end while
-            print "Final name", playerName
 
-            HelperFunctions.appendHighScore(playerScore, playerName)
+                print 'Final name', playerName
 
-            state = STATE_EXIT
-            
+                HelperFunctions.appendHighScore(playerScore, playerName)
 
+                state = STATE_HIGH_SCORE_TRY_AGAIN
 
+            elif state == STATE_LEVEL_CREATOR:
+                screen.fill((0, 0, 0))
 
-         elif state == STATE_LEVEL_CREATOR:
-            print 'Create Level'
-            print 'TODO: Please see the console window for level creator'
-            
-            
-            # execfile('level_creator.py')
-            os.system('C:\\Python27\python.exe level_creator.py')
-            # temporary
-            state = STATE_MAIN_MENU
-         elif state == STATE_HIGH_SCORES:
-            print 'High Scores'
-            rect_list, state = high_scores_menu.update(e, state)
+                rect_list.append(HelperFunctions.makeTextRect(
+                    'Please follow the instructions in the console.',
+                    (255, 255, 255),
+                    (400, 250),
+                    screen,
+                    ourFont,
+                    True,
+                    ))
 
-            highScoresList = HelperFunctions.getHighScores()
+                rect_list.append(HelperFunctions.makeTextRect(
+                    'Once complete, please restart the menu. ',
+                    (255, 255, 255),
+                    (400, 300),
+                    screen,
+                    ourFont,
+                    True,
+                    ))
 
-            yOffset = 220
+                pygame.display.update(rect_list)
 
-            screen.fill( (0,0,0) )
+                os.system(sys.executable + ' level_creator.py')
 
-            rect_list.append(HelperFunctions.makeTextRect('Rank', (0,255,0), (100, yOffset), screen, ourFont))
-            rect_list.append(HelperFunctions.makeTextRect('Name', (0,255,0), (200, yOffset), screen, ourFont))
-            rect_list.append(HelperFunctions.makeTextRect('Score', (0,255,0), (450, yOffset), screen, ourFont))
+                state = STATE_EXIT
+            elif state == STATE_HIGH_SCORES:
 
-            yOffset += 30
+                # print 'High Scores'
 
-            colour = dict()
-            colour['normal'] = (255,255,255)
-            colour['bronze'] = (128,64,0)
-            colour['silver'] = (192,192,192)
-            colour['gold']   = (232,232,0)
-            
-            
-            
-            for (idx, tup) in enumerate(highScoresList):
-                print idx
-                
-                if idx == 0:
-                    c = colour['gold']
-                elif idx == 1:
-                    c = colour['silver']
-                elif idx == 2:
-                    c = colour['bronze']
-                else:
-                    c = colour['normal']
-            
-                rect_list.append(HelperFunctions.makeTextRect((str(idx + 1) + '. '), c, (100, yOffset), screen, ourFont))
-                rect_list.append(HelperFunctions.makeTextRect(str(tup[1]), c, (200, yOffset), screen, ourFont))
-                rect_list.append(HelperFunctions.makeTextRect(str(tup[0]), c, (450, yOffset), screen, ourFont))
+                (rect_list, state) = high_scores_menu.update(e, state)
+
+                highScoresList = HelperFunctions.getHighScores()
+
+                yOffset = 220
+
+                screen.fill((0, 0, 0))
+
+                rect_list.append(HelperFunctions.makeTextRect('Rank',
+                                 GREEN, (100, yOffset), screen,
+                                 ourFont))
+                rect_list.append(HelperFunctions.makeTextRect('Name',
+                                 GREEN, (200, yOffset), screen,
+                                 ourFont))
+                rect_list.append(HelperFunctions.makeTextRect('Score',
+                                 GREEN, (450, yOffset), screen,
+                                 ourFont))
+
                 yOffset += 30
 
-            rect_list.append(HelperFunctions.makeTextRect('Press enter or escape to return', (255,255,255), (500, 300), screen, ourFont))
-            rect_list.append(HelperFunctions.makeTextRect('to the main menu', (255,255,255), (500, 320), screen, ourFont))
-               
-            pygame.display.update(rect_list)
+                colour = dict()
+                colour['normal'] = (255, 255, 255)
+                colour['bronze'] = (128, 64, 0)
+                colour['silver'] = (192, 192, 192)
+                colour['gold'] = (232, 232, 0)
 
-            # High scores menu
-         
-         elif state == STATE_RULES_P_ONE:
-            rect_list, state = game_rules_one_menu.update(e, state)
-            
-            if not imageIsShown:
+                for (idx, tup) in enumerate(highScoresList):
+
+                    # print idx
+
+                    if idx == 0:
+                        c = colour['gold']
+                    elif idx == 1:
+                        c = colour['silver']
+                    elif idx == 2:
+                        c = colour['bronze']
+                    else:
+                        c = colour['normal']
+
+                    rect_list.append(HelperFunctions.makeTextRect(str(idx
+                            + 1) + '. ', c, (100, yOffset), screen,
+                            ourFont))
+                    rect_list.append(HelperFunctions.makeTextRect(str(tup[1]),
+                            c, (200, yOffset), screen, ourFont))
+                    rect_list.append(HelperFunctions.makeTextRect(str(tup[0]),
+                            c, (450, yOffset), screen, ourFont))
+                    yOffset += 30
+
+                rect_list.append(HelperFunctions.makeTextRect('Press enter or escape to return'
+                                 , (255, 255, 255), (500, 300), screen,
+                                 ourFont))
+                rect_list.append(HelperFunctions.makeTextRect('to the main menu'
+                                 , (255, 255, 255), (500, 320), screen,
+                                 ourFont))
+
+                pygame.display.update(rect_list)
+            elif state == STATE_RULES_P_ONE:
+
+               # High scores menu
+
+                (rect_list, state) = game_rules_one_menu.update(e,
+                        state)
+
+                if not imageIsShown:
+
                # only show on the first page instance, otherwise will need to keep redrawing :. inefficient
-               rect_list.append(screen.blit(rules_one, (20, 250)))
-               imageIsShown = True
 
-            if prev_state != state:
+                    rect_list.append(screen.blit(rules_one, (20, 250)))
+                    imageIsShown = True
+
+                if prev_state != state:
+
                # changed page
-               imageIsShown = False
 
-         elif state == STATE_RULES_P_TWO:
-            rect_list, state = game_rules_two_menu.update(e, state)
-            
-            if not imageIsShown:
+                    imageIsShown = False
+            elif state == STATE_RULES_P_TWO:
+
+                (rect_list, state) = game_rules_two_menu.update(e,
+                        state)
+
+                if not imageIsShown:
+
                # only show on the first page instance, otherwise will need to keep redrawing :. inefficient
-               rect_list.append(screen.blit(rules_two, (20, 250)))
-               imageIsShown = True
 
-            if prev_state != state:
+                    rect_list.append(screen.blit(rules_two, (20, 250)))
+                    imageIsShown = True
+
+                if prev_state != state:
+
                # changed page
-               imageIsShown = False
 
-         else:
-            print 'Exit!'
+                    imageIsShown = False
+            
+            elif state == STATE_HIGH_SCORE_TRY_AGAIN:
+               screen.fill((0, 0, 0))
+
+               rect_list.append(HelperFunctions.makeTextRect(
+                     'Your final score was ' + str(playerScore) + '. Try again next time!',
+                     (255, 255, 255),
+                     (400, 250),
+                     screen,
+                     ourFont,
+                     True,
+                     ))
+ 
+               rect_list.append(HelperFunctions.makeTextRect(
+                     'Press any key to exit. ',
+                     (255, 255, 255),
+                     (400, 300),
+                     screen,
+                     ourFont,
+                     True,
+                     ))
+
+               pygame.display.update(rect_list)
+
+               # state = STATE_EXIT
+
+               # wait until we get some user input, so we know they've seen the message, then exit
+               e = pygame.event.wait()
+
+               if e.type == pygame.KEYDOWN or e.type == pygame.QUIT:
+                  state = STATE_EXIT
+
+            else:
+                pygame.quit()
+                sys.exit()
+
+      # Quit if the user presses the exit button
+
+        if e.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-      # Quit if the user presses the exit button
-      if e.type == pygame.QUIT:
-         pygame.quit()
-         sys.exit()
-
       # Update the screen
-      pygame.display.update(rect_list)
+
+        pygame.display.update(rect_list)
 
 
 ## ---[ The python script starts here! ]----------------------------------------
 # Run the script
-if __name__ == "__main__":
-   main()
 
+if __name__ == '__main__':
+    main()
 
-#---[ END OF FILE ]-------------------------------------------------------------
-
+# ---[ END OF FILE ]-------------------------------------------------------------

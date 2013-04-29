@@ -1,4 +1,3 @@
-
 #!/usr/bin/python
 import os 
 import Config
@@ -112,7 +111,8 @@ def getUserInput(inputType=STRING, limLow = None, limHigh = None, inputMessage =
         return userInputToTest
 
 
-
+print ""
+print ""
 print '*******         *******         ******* **    ** *******'
 print '*******         *******         ******* **    ** *******'
 print '**   **         **                   ** **   **  **   **'
@@ -129,10 +129,6 @@ print '        *******  V 1.0'
 print '        *******'
 print ""
 print "================================================================="
-print "Note: any spaces in 'level name' will be converted to underscores"
-print "================================================================="
-print ""
-print "================================================================="
 print "                         Level Options:"
 print "================================================================="
 print ""
@@ -140,9 +136,7 @@ print ""
 
 levelName = getUserInput(STRING, None, None, 'Enter the name of your level')
 
-# sanitise
-# levelName.replace('\'',' ')
-# levelName.replace('_',' ')
+# we're storing our strings in the file as "...", therfore sanitise it
 levelName.replace('"','\"')
 
 
