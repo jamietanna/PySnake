@@ -1,3 +1,7 @@
+############# http://stackoverflow.com/questions/13801828/how-to-create-a-play-again-option-with-pygame
+
+print "TODO: Colours as const"
+
 # implemented Scott Barlow's Menu system
 # http://www.pygame.org/project-MenuClass-1260-.html
 
@@ -9,7 +13,7 @@ import image
 import Config
 import string
 import HelperFunctions
-
+import Game_Module
 
 # base_path = '/home/jamie/Programming/Python/jvt02u-g51fse/Prototype'
 base_path = os.path.dirname(os.path.realpath(__file__)) #'H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype'
@@ -32,42 +36,45 @@ STATE_EXIT = -1
 LEVEL_ID_OFFSET = 9000
 HIGH_SCORE_INPUT_OFFSET = 26000
 
-
-
+levels_path = os.path.join(base_path, 'levels')
+img_dir = os.path.join(base_path, 'images') # "H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype\menu\MenuClass_V1.0.3\images"
 
 # path = os.path.join('C:\\','Users','Mart','Documents','FSE','Prototype', 'levels/')
-levels_path = os.path.join(base_path, 'levels') # "H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype\levels"
-level_list = os.listdir(levels_path)
 num = 0
-level_files = dict()
 
-for root, dirs, filenames in os.walk(levels_path):
-   for f in filenames:
-      fileDetails = os.path.splitext(f)
+def get_level_list():
+    level_files = dict()
 
-      # only if we have a valid lvl file
-      if fileDetails[1]  == '.lvl':
-         level_files[num] = dict()
-         settings = {}
-         execfile( os.path.join(levels_path, f) , settings)
+    for root, dirs, filenames in os.walk(levels_path):
+       level_list = os.listdir(levels_path)
+       num = 0
+       for f in filenames:
+          fileDetails = os.path.splitext(f)
 
-         level_files[num]['settings'] = settings
-         level_files[num]['fName']    = fileDetails[0]
-         level_files[num]['fExt']     = fileDetails[1]
+          # only if we have a valid lvl file
+          if fileDetails[1]  == '.lvl':
+             level_files[num] = dict()
+             settings = {}
+             execfile( os.path.join(levels_path, f) , settings)
 
-         num += 1
+             level_files[num]['settings'] = settings
+             level_files[num]['fName']    = fileDetails[0]
+             level_files[num]['fExt']     = fileDetails[1]
 
+             num += 1
+    return level_files
+    
 
 def get_level_settings(fileName):
    global levels_path
 
    print "OPENING FILE ", fileName
-
+   
+   settings = {}
    execfile(os.path.join(levels_path, fileName + '.lvl'), settings)
    return settings
 
 
-img_dir = os.path.join(base_path, 'images') # "H:\Private\G51FSE\Coursework\jvt02u-g51fse\Prototype\menu\MenuClass_V1.0.3\images"
 
 
 def generate_main_menu(screen):
@@ -79,10 +86,6 @@ def generate_main_menu(screen):
                 ('Exit', STATE_EXIT, None)])
 
 
-   main_menu.add_buttons([('[[[SCORE INPUT]]]', HIGH_SCORE_INPUT_OFFSET, None)])
-
-
-
    main_menu.set_position(330,300)
    main_menu.set_alignment('center', 'center')
    main_menu.set_unselected_color([122,201,67])
@@ -92,6 +95,9 @@ def generate_main_menu(screen):
 
 
 def generate_level_select(screen):
+
+   level_files = get_level_list()
+
    level_select_menu = menu.cMenu(50, 50, 0, 0, 'vertical', 8, screen, [])
    
    for x in range(len(level_files)):
@@ -151,11 +157,15 @@ def generate_high_score_input(screen, name):
    high_score_input.set_alignment('top', 'left')
    high_score_input.set_unselected_color([122,201,67])
    high_score_input.set_selected_color([255,255,255]) 
+   
+   return high_score_input
 
 
    
+# def initialize_level(...):
+   # print "Level", (state % 9000)
 
-   return high_score_input
+   # return high_score_input
 
 
 
@@ -172,6 +182,10 @@ def generate_high_score_input(screen, name):
 #  This function runs the entire screen and contains the main while loop
 #
 def main():
+
+
+
+
    print "TODO: check expiry working - not sure?!"
    print "TODO: move these all into func, i.e. generate_select_level()"
    print "TODO: get all (50,250) etc as different variables, esp the colours"
@@ -208,18 +222,6 @@ def main():
    high_score_input_menu = generate_high_score_input(screen, playerName)
 
    # print "Loading Levels..."
-
-
-
-   
-
-   
-   
-   
-   
-   
-   
-
 
    # Create the state variables (make them different so that the user event is
    # triggered at the start of the "while 1" loop so that the initial display
@@ -304,9 +306,10 @@ def main():
 
          elif state > LEVEL_ID_OFFSET and state < HIGH_SCORE_INPUT_OFFSET:
             rect_list, state = level_select_menu.update(e, state)
-            # level = level_select_menu.get_current_text()
-
-            # print "Level", (state % 9000)
+            
+            # G = Game_Module.Game()
+            
+            level_files = get_level_list()
 
             fName = level_files[(state % 9000) - 1]['fName']
 
@@ -350,28 +353,15 @@ def main():
                # work out the bonus based on difficulty - will only work for valid difficulties
                # try:
             exec('Config.DIFFICULTY_BONUS = Config.DIFFICULTY_BONUS_'+Config.DIFFICULTY.upper())
-            # except:
-            #    print "ERROR"
-
-            # if Config.DIFFICULTY == 'Easy':
-            #    Config.DIFFICULTY_BONUS = 0.5
-            # elif Config.DIFFICULTY == 'Medium':
-            #    Config.DIFFICULTY_BONUS = 1
-            # elif Config.DIFFICULTY == 'Hard':
-            #    Config.DIFFICULTY_BONUS = 1.5
-            # else:
-            #    raise SyntaxError
 
             Config.BACKGROUND = pygame.Surface(screen.get_size())
             Config.BACKGROUND = Config.BACKGROUND.convert()
             Config.BACKGROUND.fill(Config.BACKGROUND_COLOUR)
-
-            print "COLOUR: ", Config.BACKGROUND_COLOUR
+            Config.screen = pygame.display.set_mode(Config.DEFAULT_SCREEN_SIZE)
+            # print "COLOUR: ", Config.BACKGROUND_COLOUR
 
             # better way of doing it?
             # execfile('Snake.py')
-
-            import Game_Module
 
             G = Game_Module.Game(None)
 
@@ -400,111 +390,7 @@ def main():
 
             if False:
                pass
-               # print prev_state, state
-
-
-               # if prev_state != state:
-               #    print state % HIGH_SCORE_INPUT_OFFSET, chr(state % HIGH_SCORE_INPUT_OFFSET)
-
-               # playerName += chr(state % HIGH_SCORE_INPUT_OFFSET)
-
-               # state = HIGH_SCORE_INPUT_OFFSET
-
-               # ourFont = pygame.font.SysFont('Arial', 18)
-
-               # # text = pygame.font.Font.render(playerName, )
-
-               # # screen.blit(ourFont.render('Press enter to begin, q to quit.', 1, (255,
-               # # 255, 255)), (100,100))
-
-               # # print rect_list            
-      
-               # # x = ourFont.render('Press enter to begin, q to quit.', 1, (255,
-               # # 255, 255))
-
-               # # rect_list.append(x.get_rect(center=(100,100)))
-
-
-
-
-
-
-               # print len(playerName)
-
-               # print ourFont.size(playerName)
-
-               # print playerName
-
-
-               # block = ourFont.render(playerName, True, (255, 255, 255))
-               # rect = block.get_rect()
-               # rect.center = screen.get_rect().center
-               # # screen.blit(block, rect)
-                  
-               # rect_list = []
-
-               # rect_list.append(rect)
-
-
-
-               # # if len(playerName) == 0:
-               # text = "_ _ _"
-               # # else:
-               # #    text = playerName   
-
-               # screen.blit(ourFont.render(text, True, (255,0, 0)), (100,100))
-
-
-               # nameLen = len(name)
-               # nameText = name
-
-               
-               
-               # while len(nameText) <= 3:
-               #    nameText += '_'
-
-               #playerName += chr(state % HIGH_SCORE_INPUT_OFFSET)
-
-               #state = HIGH_SCORE_INPUT_OFFSET
-               
-               # getInput = True
-
-
-               # while getInput:
-               #    for keypress in pygame.event.get():
-
-               #       print keypress.key 
-
-               #       if keypress.type == pygame.KEYDOWN:
-               #          if keypress.unicode.isalpha():
-               #             playerName += keypress.unicode
-               #          elif keypress.key == pygame.K_BACKSPACE:
-               #                playerName = playerName[:-1]
-               #                # playerName = ""
-               #          elif keypress.key == pygame.K_RETURN:
-               #             getInput = False
-                     
-               #       #block = font.render(name, True, (255, 255, 255))
-               #       #rect = block.get_rect()
-               #       #rect.center = screen.get_rect().center
-               #       ourFont = pygame.font.SysFont('Arial', 18)
-                  
-               #       text = ourFont.render(playerName, True, (255,0, 0))
-               #       block = text.get_rect()
-               #       block.center = screen.get_rect().center
-               #       rect_list.append(screen.blit(text, block))
-
-
-               #       # instr = ourFont.render('Please enter your name below, press enter to finish, and backspace to remove characters. ', True, (255,0, 0))
-               #       # block = instr.get_rect()
-               #       # block.center = (300,200)
-               #       # rect_list.append(screen.blit(instr, block))
-
-
-               #       screen.fill(0)
-
-               #       pygame.display.update(rect_list)
-
+            
             getInput = True
             showUpdates = True
 
@@ -535,7 +421,7 @@ def main():
                   block.center = (400,300) #dead center
                   rect_list.append(screen.blit(text, block))
 
-                  text = ourFont.render('Please type your name, press enter to finish, and backspace to remove characters. ', True, (0, 0, 255))
+                  text = ourFont.render('Please type your name, press enter to finish, and backspace to remove characters. ', True, (255, 255, 255))
                   block = text.get_rect()
                   block.center = (400,250)
                   # block.center[1] -= 100
@@ -558,8 +444,11 @@ def main():
 
          elif state == STATE_LEVEL_CREATOR:
             print 'Create Level'
-            print 'execute create level command line program'
+            print 'TODO: Please see the console window for level creator'
             
+            
+            # execfile('level_creator.py')
+            os.system('C:\\Python27\python.exe level_creator.py')
             # temporary
             state = STATE_MAIN_MENU
          elif state == STATE_HIGH_SCORES:
@@ -572,26 +461,39 @@ def main():
 
             screen.fill( (0,0,0) )
 
-
-
-            # text = ourFont.render('Place', True, (255,0, 0))
-            # block = text.get_rect()
-            # block.topleft = (100, yOffset) 
-            
-            rect_list.append(HelperFunctions.makeTextRect('Place', (0,255,0), (100, yOffset), screen, ourFont))
-            rect_list.append(HelperFunctions.makeTextRect('Name', (0,255,0), (150, yOffset), screen, ourFont))
-            rect_list.append(HelperFunctions.makeTextRect('Score', (0,255,0), (400, yOffset), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('Rank', (0,255,0), (100, yOffset), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('Name', (0,255,0), (200, yOffset), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('Score', (0,255,0), (450, yOffset), screen, ourFont))
 
             yOffset += 30
 
+            colour = dict()
+            colour['normal'] = (255,255,255)
+            colour['bronze'] = (128,64,0)
+            colour['silver'] = (192,192,192)
+            colour['gold']   = (232,232,0)
+            
+            
+            
             for (idx, tup) in enumerate(highScoresList):
-               rect_list.append(HelperFunctions.makeTextRect((str(idx + 1) + '. '), (255,0,0), (100, yOffset), screen, ourFont))
-               rect_list.append(HelperFunctions.makeTextRect(str(tup[1]), (255,0,0), (150, yOffset), screen, ourFont))
-               rect_list.append(HelperFunctions.makeTextRect(str(tup[0]), (255,0,0), (400, yOffset), screen, ourFont))
-               yOffset += 30
+                print idx
+                
+                if idx == 0:
+                    c = colour['gold']
+                elif idx == 1:
+                    c = colour['silver']
+                elif idx == 2:
+                    c = colour['bronze']
+                else:
+                    c = colour['normal']
+            
+                rect_list.append(HelperFunctions.makeTextRect((str(idx + 1) + '. '), c, (100, yOffset), screen, ourFont))
+                rect_list.append(HelperFunctions.makeTextRect(str(tup[1]), c, (200, yOffset), screen, ourFont))
+                rect_list.append(HelperFunctions.makeTextRect(str(tup[0]), c, (450, yOffset), screen, ourFont))
+                yOffset += 30
 
-            rect_list.append(HelperFunctions.makeTextRect('Press enter or escape to return', (0,0,255), (500, 300), screen, ourFont))
-            rect_list.append(HelperFunctions.makeTextRect('to the main menu', (0,0,255), (500, 320), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('Press enter or escape to return', (255,255,255), (500, 300), screen, ourFont))
+            rect_list.append(HelperFunctions.makeTextRect('to the main menu', (255,255,255), (500, 320), screen, ourFont))
                
             pygame.display.update(rect_list)
 

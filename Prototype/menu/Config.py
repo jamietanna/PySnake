@@ -8,8 +8,8 @@ SCREEN_HEIGHT = 600
 DEFAULT_SCREEN_SIZE = [SCREEN_WIDTH, SCREEN_HEIGHT]
 
 # needed for later, but won't have been already set
-print "TODO: move screen out of here"
-screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE)
+# print "TODO: move screen out of here"
+# screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE)
 
 ## These two will definitely be overwritten
 print "TODO: check that DIFF / DIFF_BON both changed"

@@ -1,0 +1,20 @@
+level_name = "Level One"
+difficulty = "Easy"
+
+# Food
+initial_food_num = 2
+initial_food_super_num = 1
+initial_food_mysterious_num = 0
+initial_food_curse_num = 0
+
+# Balls
+initial_ball_num = 2
+initial_ball_killer_num = 0
+max_balls = 5
+ball_speed = 10
+ball_size = 10
+
+# FPS = difficulty
+fps = 20
+
+background_colour = [0,0,0]

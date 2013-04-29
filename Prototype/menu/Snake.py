@@ -12,7 +12,7 @@ import Config
 global gameOver
 global direction
 global score
-global userEscape
+# global userEscape
 
 G = Game_Module.Game(None)
 

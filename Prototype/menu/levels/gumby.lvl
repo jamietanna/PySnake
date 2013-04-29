@@ -1,0 +1,22 @@
+level_name = "ProfGumby's Curse"
+difficulty = "Hard"
+
+# Food
+initial_food_num = 1
+initial_food_super_num = 2
+initial_food_mysterious_num = 2
+initial_food_curse_num = 2
+
+
+# Balls
+initial_ball_num = 3
+    # note - if this is non-zero, it will spawn *one*
+initial_ball_killer_num = 1
+max_balls = 5
+ball_speed = 12
+ball_size = 10
+
+# FPS = difficulty
+fps = 30
+
+background_colour = [12,124,43]

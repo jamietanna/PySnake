@@ -1,0 +1,13 @@
+level_name = "Houman is a weirdo"
+difficulty = "Hard"
+initial_food_num = 0
+initial_food_super_num = 10
+initial_food_mysterious_num = 5
+initial_food_curse_num = 0
+initial_ball_num = 0
+initial_ball_killer_num = 1
+max_balls = 10
+ball_speed = 25
+ball_size = 25
+fps = 35
+background_colour = [255, 174, 201]

@@ -264,3 +264,5 @@ if createLevel:
         print "Success - Level has been created, please run PySnake to play!"
         print ""
         print ""
+
+exit()
