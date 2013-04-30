@@ -13,8 +13,15 @@ global gameOver
 global direction
 global score
 # global userEscape
+try:
+    Config.screen
+except:
+    Config.screen = pygame.display.set_mode(Config.DEFAULT_SCREEN_SIZE)    
+
+
 
 G = Game_Module.Game(None)
+
 
 running = True
 while running:

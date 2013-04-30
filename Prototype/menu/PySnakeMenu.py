@@ -79,6 +79,7 @@ def get_level_list():
 
 def get_level_settings(fileName):
     global levels_path
+    settings = {}
 
     execfile(os.path.join(levels_path, fileName + '.lvl'), settings)
     return settings

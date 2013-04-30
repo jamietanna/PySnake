@@ -210,8 +210,10 @@ class Game():
                 self.snake.curse_tail()
 
             if properties['effect']['spawnKiller']:
-                # 20% chance
-                if self.ballKillerSpawned() == False and (pygame.time.get_ticks() % 5 == 0):
+                # 40% chance
+                t = pygame.time.get_ticks()
+                
+                if self.ballKillerSpawned() == False and (t % 5 == 0 or t % 5 == 1):
                 # maybe make the stimulus for a killer ball to be spawned more complicated 
                     self.ballKillerGroup.add(Ball_Module.BallKiller(HelperFunctions.generateSafeXY(self.snake, self.ballGroup, ballKiller, self.foodGroup)))
 
